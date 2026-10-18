@@ -1,0 +1,106 @@
+/* Design tokens. See DESIGN.md in the project root. Change a value here and it changes everywhere. */
+
+:root {
+  color-scheme: light;
+  --slate: #1E2B24;
+  --slate-2: #2A3A31;
+  --bg: #E3E7DC;
+  --card: #F6F7F2;
+  --card-2: #EDF0E7;
+  --line: #C9D0C2;
+  --line-soft: #D8DED1;
+  --ink: #18201B;
+  --ink-2: #4E5A52;
+  --ink-3: #6E7A71;
+  --brass: #B8862B;
+  --brass-hi: #C99634;
+  --brass-ink: #7A5714;
+  --brass-soft: #EFE3C6;
+  --green: #2E6B47;
+  --green-soft: #D9E8DC;
+  --amber: #94600E;
+  --amber-soft: #F1E3C6;
+  --red: #AE3A2A;
+  --red-soft: #F2DCD6;
+  --chalk: #E8ECE2;
+  --on-slate: #E8ECE2;
+  --on-slate-2: #A9B6AC;
+
+  --shadow-paper: 0 1px 0 rgba(30, 43, 36, .08), 0 8px 24px -14px rgba(30, 43, 36, .38);
+  --shadow-lift: 0 2px 0 rgba(30, 43, 36, .06), 0 26px 50px -22px rgba(30, 43, 36, .45);
+  --shadow-sheet: -30px 0 80px -30px rgba(17, 26, 21, .5);
+
+  --font-read: "Literata Variable", Georgia, serif;
+  --font-ui: "Atkinson Hyperlegible", "Segoe UI", Arial, sans-serif;
+
+  --fs-xs: 13px;
+  --fs-sm: 15px;
+  --fs-md: 17px;
+  --fs-lg: 22px;
+  --fs-xl: 30px;
+  --fs-2xl: 44px;
+  --fs-3xl: 64px;
+
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px; --s8: 64px;
+
+  --r-control: 8px;
+  --r-card: 6px;
+  --r-sheet: 14px;
+
+  --ease: cubic-bezier(.2, .8, .2, 1);
+  --sidebar: 248px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --slate: #0F1712;
+    --slate-2: #1A2620;
+    --bg: #16201B;
+    --card: #1F2C25;
+    --card-2: #26352D;
+    --line: #34463B;
+    --line-soft: #2C3D33;
+    --ink: #E8ECE2;
+    --ink-2: #A9B4AA;
+    --ink-3: #849287;
+    --brass: #D4A445;
+    --brass-hi: #E0B458;
+    --brass-ink: #E2BC6A;
+    --brass-soft: #3A3220;
+    --green: #7DBB91;
+    --green-soft: #22392B;
+    --amber: #E0A94E;
+    --amber-soft: #3A2F1B;
+    --red: #EE8A78;
+    --red-soft: #3D2622;
+    --shadow-paper: 0 1px 0 rgba(0, 0, 0, .25), 0 10px 26px -14px rgba(0, 0, 0, .7);
+    --shadow-lift: 0 2px 0 rgba(0, 0, 0, .25), 0 30px 60px -24px rgba(0, 0, 0, .8);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --slate: #0F1712;
+  --slate-2: #1A2620;
+  --bg: #16201B;
+  --card: #1F2C25;
+  --card-2: #26352D;
+  --line: #34463B;
+  --line-soft: #2C3D33;
+  --ink: #E8ECE2;
+  --ink-2: #A9B4AA;
+  --ink-3: #849287;
+  --brass: #D4A445;
+  --brass-hi: #E0B458;
+  --brass-ink: #E2BC6A;
+  --brass-soft: #3A3220;
+  --green: #7DBB91;
+  --green-soft: #22392B;
+  --amber: #E0A94E;
+  --amber-soft: #3A2F1B;
+  --red: #EE8A78;
+  --red-soft: #3D2622;
+  --shadow-paper: 0 1px 0 rgba(0, 0, 0, .25), 0 10px 26px -14px rgba(0, 0, 0, .7);
+  --shadow-lift: 0 2px 0 rgba(0, 0, 0, .25), 0 30px 60px -24px rgba(0, 0, 0, .8);
+}
