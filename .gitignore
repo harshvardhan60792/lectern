@@ -1,0 +1,17 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.env
+
+# Downloaded datasets and the built database are large; rebuild with `python -m db setup`
+data/raw/
+data/*.db
+data/*.db-*
+data/stage/
+data/models/
+exports/
+.pytest-tmp/
+
+# The UI's packages (rebuild with: cd webui && npm install). webui/dist is kept so the app runs without Node.
+webui/node_modules/
