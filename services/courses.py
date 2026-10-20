@@ -2,7 +2,7 @@
 import re
 
 from db import transaction
-from services.errors import ValidationError
+from services.common import ValidationError
 
 SOURCES = {
     "openstax": "OpenStax textbook", "sciq": "SciQ questions", "assistments": "ASSISTments",

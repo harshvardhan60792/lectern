@@ -2,8 +2,8 @@ from datetime import date, timedelta
 
 import pytest
 
-from services import clock, enrollments, quizzes, review
-from services.errors import ValidationError
+from services import common, enrollments, quizzes, review
+from services.common import ValidationError
 from tests.conftest import TODAY, answer_all
 
 
@@ -68,7 +68,7 @@ def test_review_session_uses_due_items(conn, world):
     answer_all(conn, quizzes.start_quiz(conn, world["asha"], world["mods"]["Variables"]), False)
     with pytest.raises(ValidationError, match="Nothing is due"):
         quizzes.start_review(conn, world["asha"])
-    clock.set_today(TODAY + timedelta(days=1))
+    common.set_today(TODAY + timedelta(days=1))
     session = quizzes.start_review(conn, world["asha"])
     assert len(session["questions"]) == 5
     answer_all(conn, session, True)

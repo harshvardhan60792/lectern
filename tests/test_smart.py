@@ -113,11 +113,12 @@ def test_coach_with_no_courses_recommends_one(conn, world):
 
 def test_coach_flags_weak_module_and_due_reviews(conn, world):
     from datetime import timedelta
-    from services import clock
+
+    from services import common
     from tests.conftest import TODAY
     enrollments.enroll(conn, world["asha"], world["a"])
     answer_all(conn, quizzes.start_quiz(conn, world["asha"], world["mods"]["Variables"]), False)
-    clock.set_today(TODAY + timedelta(days=1))
+    common.set_today(TODAY + timedelta(days=1))
     rules = {n.rule for n in coach.notes(conn, world["asha"], limit=0)}
     assert {"reviews-due", "weak-module"} <= rules
     plan = coach.week_plan(conn, world["asha"])

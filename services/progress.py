@@ -2,8 +2,8 @@
 from datetime import date, timedelta
 
 from db import transaction
-from services import clock
-from services.errors import ValidationError
+from services import common
+from services.common import ValidationError
 from services.quizzes import log_activity
 
 # Weight of the newest answer in the mastery average (exponentially weighted).
@@ -45,7 +45,7 @@ def complete_lesson(conn, student_id: int, lesson_id: int, watched_pct: int = 0)
                ON CONFLICT (student_id, lesson_id) DO UPDATE SET
                    completed_on = COALESCE(completed_on, excluded.completed_on),
                    watched_pct = MAX(watched_pct, excluded.watched_pct)""",
-            (student_id, lesson_id, clock.today().isoformat(), max(0, min(100, watched_pct))),
+            (student_id, lesson_id, common.today().isoformat(), max(0, min(100, watched_pct))),
         )
         log_activity(conn, student_id, course_id, 1)
 
@@ -105,7 +105,7 @@ def calendar(conn, student_id: int, year: int | None = None) -> dict:
     """Activity per day for one year, summed over all courses."""
     if year is None:
         last = conn.execute("SELECT MAX(day) FROM activity_days WHERE student_id = ?", (student_id,)).fetchone()[0]
-        year = int(last[:4]) if last else clock.today().year
+        year = int(last[:4]) if last else common.today().year
     days = {r["day"]: r["clicks"] for r in conn.execute(
         """SELECT day, SUM(clicks) AS clicks FROM activity_days
            WHERE student_id = ? AND day BETWEEN ? AND ? GROUP BY day""",
@@ -132,7 +132,7 @@ def streaks(conn, student_id: int, as_of: date | None = None) -> dict:
         longest = max(longest, run)
 
     source = conn.execute("SELECT source FROM students WHERE id = ?", (student_id,)).fetchone()[0]
-    ref = as_of or (clock.today() if source == "local" else days[-1])
+    ref = as_of or (common.today() if source == "local" else days[-1])
     active = set(days)
     if ref not in active:
         ref -= timedelta(days=1)  # today isn't over yet; a streak survives until tomorrow
@@ -159,7 +159,7 @@ def pace(conn, student_id: int, course_id: int, window_days: int = 14) -> dict:
     if remaining == 0:
         return {"state": "done", "text": "All modules done."}
 
-    today = clock.today()
+    today = common.today()
     since = (today - timedelta(days=window_days)).isoformat()
     recent = conn.execute(
         """SELECT COUNT(*) FROM module_progress mp JOIN modules m ON m.id = mp.module_id

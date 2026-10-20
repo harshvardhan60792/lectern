@@ -27,7 +27,7 @@ def setup() -> None:
     missing = [p for p in ("oulad/studentVle.csv", "assistments/skill_builder_data.csv", "openstax/intro-python.pdf")
                if not (config.raw_dir / p).exists()]
     if missing or not list((config.raw_dir / "sciq").glob("SciQ*")):
-        log("Datasets missing in data/raw. See docs/data-sources.md for download links.")
+        log("Datasets missing in data/raw. See docs/database.md (Part 2) for download links.")
         sys.exit(1)
     if config.db_path.exists():
         log(f"{config.db_path} already exists. Run `python -m db reset` first.")

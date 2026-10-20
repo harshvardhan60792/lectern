@@ -16,10 +16,20 @@ from dataclasses import asdict
 
 from app.config import config
 from db import connect, read_only, set_current_user
-from services import (auth, certificates, clock, courses, enrollments, progress, quizzes, reports, review,
-                      students)
+from services import (
+    auth,
+    certificates,
+    common,
+    courses,
+    enrollments,
+    progress,
+    quizzes,
+    reports,
+    review,
+    students,
+)
+from services.common import ValidationError
 from services.enrollments import HISTORICAL
-from services.errors import ValidationError
 from smart import ask_data, coach, drafter, recommender, risk
 from smart import text as tt
 
@@ -113,7 +123,7 @@ class Api:
         built = (self._db_path or config.db_path).exists()
         has_users = built and auth.has_users(self.conn)
         return {"db_ready": built, "has_users": has_users, "session": self._session_dict(),
-                "today": clock.today().isoformat()}
+                "today": common.today().isoformat()}
 
     def _session_dict(self):
         s = self.session
@@ -525,7 +535,7 @@ class Api:
                 })
         return {
             "student": s,
-            "today": clock.today().isoformat(),
+            "today": common.today().isoformat(),
             "streaks": progress.streaks(self.conn, sid),
             "review": review.summary(self.conn, sid),
             "active": active,

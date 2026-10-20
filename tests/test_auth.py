@@ -1,7 +1,7 @@
 import pytest
 
 from services import auth
-from services.errors import ValidationError
+from services.common import ValidationError
 
 
 def test_password_is_hashed_and_salted():

@@ -2,7 +2,7 @@
 import re
 
 from db import transaction
-from services.errors import ValidationError
+from services.common import ValidationError
 
 EMAIL = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 SOURCES = {"oulad": "Open University", "assistments": "ASSISTments", "local": "Added here"}

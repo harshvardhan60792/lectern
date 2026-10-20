@@ -2,8 +2,8 @@
 import sqlite3
 
 from db import transaction
-from services import certificates, clock
-from services.errors import ValidationError
+from services import certificates, common
+from services.common import ValidationError
 
 # Courses imported from OULAD (2013–14) and ASSISTments (2009–10) are records of
 # what happened, not courses anyone can join today.
@@ -40,7 +40,7 @@ def enroll(conn, student_id: int, course_id: int) -> int:
     existing = conn.execute(
         "SELECT id, status FROM enrollments WHERE student_id = ? AND course_id = ?", (student_id, course_id)
     ).fetchone()
-    today = clock.today().isoformat()
+    today = common.today().isoformat()
     with transaction(conn):
         if existing:
             if existing["status"] in ("active", "completed"):
@@ -67,7 +67,7 @@ def drop(conn, student_id: int, course_id: int) -> None:
         cur = conn.execute(
             """UPDATE enrollments SET status = 'withdrawn', ended_on = ?, final_result = 'Withdrawn'
                WHERE student_id = ? AND course_id = ? AND status = 'active'""",
-            (clock.today().isoformat(), student_id, course_id),
+            (common.today().isoformat(), student_id, course_id),
         )
     if cur.rowcount == 0:
         raise ValidationError("Only an active enrollment can be dropped.")
@@ -121,7 +121,7 @@ def check_completion(conn, student_id: int, course_id: int) -> dict | None:
     ).fetchone()
     if row is None or row["status"] != "active" or row["needed"] == 0 or row["done"] < row["needed"]:
         return None
-    today = clock.today().isoformat()
+    today = common.today().isoformat()
     conn.execute(
         """UPDATE enrollments SET status = 'completed', ended_on = ?, final_result = 'Pass'
            WHERE student_id = ? AND course_id = ?""",

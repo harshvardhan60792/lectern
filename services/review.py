@@ -10,7 +10,7 @@ just as the memory starts to fade.
 """
 from datetime import date, timedelta
 
-from services import clock
+from services import common
 
 WAIT_DAYS = {1: 1, 2: 3, 3: 7}
 LEARNED = 4
@@ -18,7 +18,7 @@ LEARNED = 4
 
 def record(conn, student_id: int, question_id: int, correct: bool, on: date | None = None) -> None:
     """Update the queue after an answer. Call inside the caller's transaction."""
-    on = on or clock.today()
+    on = on or common.today()
     row = conn.execute(
         "SELECT box FROM review_queue WHERE student_id = ? AND question_id = ?", (student_id, question_id)
     ).fetchone()
@@ -42,7 +42,7 @@ def record(conn, student_id: int, question_id: int, correct: bool, on: date | No
 
 
 def due(conn, student_id: int, on: date | None = None, limit: int = 20) -> list[int]:
-    on = on or clock.today()
+    on = on or common.today()
     return [r[0] for r in conn.execute(
         """SELECT question_id FROM review_queue
            WHERE student_id = ? AND box < ? AND due_on <= ?
@@ -52,7 +52,7 @@ def due(conn, student_id: int, on: date | None = None, limit: int = 20) -> list[
 
 
 def summary(conn, student_id: int, on: date | None = None) -> dict:
-    on = on or clock.today()
+    on = on or common.today()
     boxes = {b: 0 for b in (1, 2, 3, 4)}
     for r in conn.execute("SELECT box, COUNT(*) AS n FROM review_queue WHERE student_id = ? GROUP BY box",
                           (student_id,)):

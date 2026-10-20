@@ -1,7 +1,7 @@
 import pytest
 
 from services import courses, enrollments, students
-from services.errors import ValidationError
+from services.common import ValidationError
 
 
 @pytest.mark.parametrize("name, email, message", [

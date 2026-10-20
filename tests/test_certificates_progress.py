@@ -3,8 +3,8 @@ from datetime import timedelta
 
 import pytest
 
-from services import certificates, clock, enrollments, progress, quizzes
-from services.errors import ValidationError
+from services import certificates, common, enrollments, progress, quizzes
+from services.common import ValidationError
 from tests.conftest import TODAY, answer_all
 
 
@@ -76,7 +76,7 @@ def test_pace_states(conn, world):
     sid = world["asha"]
     enrollments.enroll(conn, sid, world["a"])
     assert progress.pace(conn, sid, world["a"])["state"] == "starting"
-    clock.set_today(TODAY + timedelta(days=10))
+    common.set_today(TODAY + timedelta(days=10))
     assert progress.pace(conn, sid, world["a"])["state"] == "stalled"
     answer_all(conn, quizzes.start_quiz(conn, sid, world["mods"]["Variables"]), True)
     p = progress.pace(conn, sid, world["a"])

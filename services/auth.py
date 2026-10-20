@@ -10,7 +10,7 @@ import secrets
 from dataclasses import dataclass
 
 from db import set_current_user, transaction
-from services.errors import ValidationError
+from services.common import ValidationError
 
 _N, _R, _P = 2**14, 8, 1
 MIN_PASSWORD = 8

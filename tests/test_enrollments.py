@@ -3,7 +3,7 @@ import sqlite3
 import pytest
 
 from services import enrollments
-from services.errors import ValidationError
+from services.common import ValidationError
 
 
 def test_enroll_and_list(conn, world):

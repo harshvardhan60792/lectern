@@ -10,7 +10,7 @@ from datetime import date
 from pathlib import Path
 
 from db import transaction
-from services.errors import ValidationError
+from services.common import ValidationError
 
 # Mixed into every fingerprint so a hash can't be recomputed without the app.
 _PEPPER = "lectern-certificate-v1"
@@ -155,8 +155,8 @@ def list_for_student(conn, student_id: int) -> list[dict]:
 def render_pdf(conn, code: str, out_path: Path) -> Path:
     """Draw the certificate as an A4 landscape PDF with a QR code for verification."""
     import qrcode
-    from reportlab.lib.pagesizes import A4, landscape
     from reportlab.lib.colors import HexColor
+    from reportlab.lib.pagesizes import A4, landscape
     from reportlab.lib.utils import ImageReader
     from reportlab.pdfgen import canvas
 

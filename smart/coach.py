@@ -10,7 +10,7 @@ import math
 from dataclasses import dataclass
 from datetime import date, timedelta
 
-from services import clock, progress, review
+from services import common, progress, review
 from smart.recommender import OPEN_SOURCES, recommend_courses
 
 
@@ -25,7 +25,7 @@ class Note:
 # Facts -----------------------------------------------------------------------
 
 def _facts(conn, student_id: int) -> dict:
-    today = clock.today()
+    today = common.today()
     student = dict(conn.execute("SELECT * FROM students WHERE id = ?", (student_id,)).fetchone())
     enrollments = [dict(r) for r in conn.execute(
         """SELECT e.course_id, e.status, e.final_result, e.ended_on, c.title, c.source, c.pass_mark

@@ -18,7 +18,7 @@ import re
 from dataclasses import dataclass, field
 from datetime import timedelta
 
-from services import clock
+from services import common
 from smart import text as tt
 
 MAX_ROWS = 200
@@ -301,7 +301,7 @@ def _course_filters(q: str, p: Parsed, courses: list[dict]) -> None:
 
 
 def _time_filters(q: str, p: Parsed) -> None:
-    today = clock.today()
+    today = common.today()
     m = re.search(r"\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s+(20\d\d)\b", q)
     if m:
         p.filters.append(("month", "month", f"{m.group(2)}-{MONTHS[m.group(1)]:02d}"))

@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 
 from db import connect, init_schema
-from services import clock, courses, quizzes, students
+from services import common, courses, quizzes, students
 
 TODAY = date(2026, 10, 1)
 
@@ -37,9 +37,9 @@ LESSON_TEXT = {
 
 @pytest.fixture(autouse=True)
 def fixed_today():
-    clock.set_today(TODAY)
+    common.set_today(TODAY)
     yield
-    clock.set_today(None)
+    common.set_today(None)
 
 
 @pytest.fixture

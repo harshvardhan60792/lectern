@@ -7,8 +7,8 @@ import random
 from datetime import datetime
 
 from db import transaction
-from services import clock, enrollments, review
-from services.errors import ValidationError
+from services import common, enrollments, review
+from services.common import ValidationError
 
 QUIZ_SIZE = 10
 
@@ -171,7 +171,7 @@ def submit(conn, attempt_id: int, answers: dict[int, int | None]) -> dict:
     if attempt["finished_at"]:
         raise ValidationError("This attempt was already submitted.")
     student_id = attempt["student_id"]
-    today = clock.today()
+    today = common.today()
     now = f"{today.isoformat()} {datetime.now():%H:%M:%S}"
 
     if len(answers) > attempt["n_questions"]:
@@ -249,7 +249,7 @@ def log_activity(conn, student_id: int, course_id: int, amount: int = 1) -> None
     conn.execute(
         """INSERT INTO activity_days (student_id, course_id, day, clicks) VALUES (?, ?, ?, ?)
            ON CONFLICT (student_id, course_id, day) DO UPDATE SET clicks = clicks + excluded.clicks""",
-        (student_id, course_id, clock.today().isoformat(), amount),
+        (student_id, course_id, common.today().isoformat(), amount),
     )
 
 
