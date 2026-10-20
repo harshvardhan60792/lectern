@@ -1,13 +1,13 @@
 # Learning tasks
 
-Seven tasks covering the basics everyone needs, even when AI writes most of the code:
-running a project, git, SQL, reading errors, tests, checking AI-written code, and tracing a feature through the code.
+Seven tasks covering the basics every developer needs:
+running a project, git, SQL, reading errors, tests, reviewing code, and tracing a feature through the code.
 
 The app is built, so every task is ready now. Do them in order.
 
 How it works:
-1. Follow the steps exactly. If something doesn't match what you see, stop and paste what you see to Claude.
-2. When done, say **"review L#"**. Claude checks your work and explains anything that went wrong.
+1. Follow the steps exactly. If something doesn't match what you see, stop and note what you see.
+2. When done, compare your work with the worked answers further down.
 
 **Where to type commands:** unless a step says otherwise, use the **VS Code terminal**: open VS Code, *File → Open Folder…*, pick
 `D:\study\claude projects\elearning-platform`, then *Terminal → New Terminal* (it opens PowerShell).
@@ -56,7 +56,7 @@ A `.venv` folder already exists from when the app was built. You'll delete it an
    ```powershell
    Copy-Item .env.example .env
    ```
-8. Run the tests. The last line should say `107 passed`:
+8. Run the tests. The last line should say `109 passed`:
    ```powershell
    python -m pytest
    ```
@@ -104,9 +104,9 @@ The project is already in git and on GitHub: https://github.com/harshvardhan6079
    git restore README.md
    ```
    The junk line is gone.
-5. Make a real commit. Open `docs\test-checklist.md`, tick one line you have tested (`- [ ]` becomes `- [x]`), save. Then:
+5. Make a real commit. Open `docs\learning.md`, go to the click-test checklist at the end, tick one line you have tested (`- [ ]` becomes `- [x]`), save. Then:
    ```powershell
-   git add docs\test-checklist.md
+   git add docs\learning.md
    git commit -m "Tick sign-in checks in the test checklist"
    git push
    ```
@@ -141,7 +141,7 @@ The project is already in git and on GitHub: https://github.com/harshvardhan6079
 
 ## L4 — Read an error and fix it  *(~30 min)*
 
-**Why it matters:** the skill you'll use most. AI code breaks too, and you need to read the error before you can ask a good question.
+**Why it matters:** the skill you'll use most. Every program breaks sometimes, and you need to read the error before you can ask a good question.
 
 `docs\learn\broken.py` holds three small scripts that crash. Run them one at a time. For each one:
 
@@ -168,7 +168,7 @@ Then run it with `2`, then `3`. Script 2's error even suggests the fix; notice t
    ```powershell
    python -m pytest
    ```
-   Last line: `107 passed`.
+   Last line: `109 passed`.
 2. Break something on purpose. Open `services\enrollments.py` and find these three lines inside `enroll` (search with **Ctrl+F** for `Finish these first`):
    ```python
        missing = missing_prerequisites(conn, student_id, course_id)
@@ -191,9 +191,9 @@ Then run it with `2`, then `3`. Script 2's error even suggests the fix; notice t
 
 ---
 
-## L6 — Check AI-written code before trusting it  *(~30 min)*
+## L6 — Review code before trusting it  *(~30 min)*
 
-**Why it matters:** the most important habit when building with AI. Never trust code you haven't looked at, especially code that touches data safety.
+**Why it matters:** never trust code you haven't looked at, especially code that touches data safety.
 
 The "Ask the data" feature takes typed English and runs SQL on the database. You'll check it can't be used to damage data.
 
@@ -209,7 +209,7 @@ The "Ask the data" feature takes typed English and runs SQL on the database. You
    - `show students; drop table courses`
    - `update every score to 100`
    - `how many students withdrew from DDD-2013J` *(this one should work)*
-6. If anything harmful got through, write it down and tell Claude. If not, commit your notes:
+6. If anything harmful got through, write it down. If not, commit your notes:
    ```powershell
    git add docs\learn
    git commit -m "Review ask-the-data safety"
@@ -236,7 +236,7 @@ Feature to trace: **enrolling a student in a course**. It crosses from the scree
 ## Before the review (21 Oct)
 
 - Read `docs\explain\00-project-overview.md`, `01-code-tour.md` and `02-review-questions.md`.
-- Say "explain-back session" to Claude: you walk through each part, Claude asks review-style questions.
+- Practise explaining each part out loud, then answer the questions in `docs/review-questions.md`.
 - Be ready to answer: why SQLite and no Django, where the data comes from, how the review queue works, how certificate verification works, how the at-risk model was tested, how Ask the data stays safe.
 
 ---
@@ -266,7 +266,7 @@ All six queries, with comments, are in [`learn/l3-queries.sql`](learn/l3-queries
 
 | Query | Result |
 |---|---|
-| 1. Courses by title | 26 rows |
+| 1. Courses by title | 31 rows |
 | 2. Count students | 33,002 (more if you've added some) |
 | 3. Students per source | Open University 28,785 · ASSISTments 4,217 |
 | 4. Withdrew from DDD-2013J | 681 students |
@@ -310,7 +310,7 @@ With the three prerequisite lines commented out in `services/enrollments.py`:
 
 ---
 
-### L6 — Check AI-written code before trusting it
+### L6 — Review code before trusting it
 
 Reviewing `smart/ask_data.py`:
 
@@ -371,7 +371,7 @@ When the owner shares the deck, read every slide. Note typos, unclear sentences,
 Once the app runs on the owner's laptop, take clear screenshots of: sign-in, Overview, Students (with someone selected), a course's Insights tab, Question bank → Health check, Ask the data (with an answer), At-risk students, a quiz, a certificate. Name them `01-signin.png`, `02-overview.png`, and so on.
 
 **M4: Click-test**
-Follow `docs/test-checklist.md` with the owner's laptop. Click every button, try wrong inputs (empty fields, wrong password, a bad email). Write each problem as: *screen → what you did → what happened*.
+Follow the click-test checklist at the end of this file with the owner's laptop. Click every button, try wrong inputs (empty fields, wrong password, a bad email). Write each problem as: *screen → what you did → what happened*.
 
 **M5: Learn one screen**
 Pick **Students** or **Courses**. Be able to answer, in your own words: "What does this screen do and how would a teacher use it?" That's enough for your part of the review; nobody expects you to explain the code.
@@ -379,3 +379,65 @@ Pick **Students** or **Courses**. Be able to answer, in your own words: "What do
 ### Not for the teammate
 
 Database design, Python code, SQL, the machine-learning parts. The owner handles those.
+
+---
+
+## Click-test checklist
+
+Tick each line. If something breaks or looks wrong, write: *screen → what you did → what happened*.
+
+### Sign in
+- [ ] Wrong password shows "Wrong username or password" and clears the password box
+- [ ] Right password opens the Overview
+- [ ] The book on the sign-in screen turns its pages once
+- [ ] Dark / Light button switches appearance; every screen stays readable
+- [ ] Ctrl+K opens the jump-to palette; typing "rep" and Enter opens Reports
+- [ ] Sign out returns to the sign-in screen
+
+### Students
+- [ ] Search "11391" shows matching students; clearing the box shows everyone again
+- [ ] Source filter "Added here" shows only students added in the app
+- [ ] Next / Previous page through the list
+- [ ] Add student with an empty name → error message, dialog stays open
+- [ ] Add student with email `abc` → error message
+- [ ] Add a real student → appears in the list and opens on the right
+- [ ] Edit that student's region → saved
+- [ ] Create login for that student → message confirms the username
+- [ ] Learner view opens their home page
+- [ ] Mastery tab shows the block skyline; Study days shows the calendar
+- [ ] Remove asks for confirmation; Cancel keeps the student
+
+### Courses
+- [ ] Select DDD-2013J → About, Modules, Prerequisites, Insights tabs all open
+- [ ] Insights shows the weekly activity chart and the scores chart
+- [ ] New course with code `x` → error; with code `WEB-101` → created
+- [ ] Add a module, rename it, move it up/down
+- [ ] Add a lesson with a video link starting `ftp://` → error; with `https://` → saved
+- [ ] Open a module (arrow), click a lesson → it opens to read
+- [ ] PY-102 Prerequisites tab shows PY-101 and the course map
+- [ ] Course cards lean slightly toward the mouse
+
+### Enrollments
+- [ ] Search a student, pick PY-102, Enroll → "Finish these first: Python programming I"
+- [ ] Pick PY-101, Enroll → success; enrolling again → "Already enrolled"
+- [ ] Drop → success; the student shows as withdrawn
+
+### Learning (as a student or via Learner view)
+- [ ] Browse courses: cards in the drawer lift on hover and pull out when clicked
+- [ ] Continue opens the course; lessons open; "Mark as read and continue" moves on
+- [ ] Watch the video opens the browser
+- [ ] Take quiz → answer all → Submit → score and feedback appear
+- [ ] Next day (or after wrong answers), "Start review" appears on the home page
+
+### Question bank
+- [ ] PY-101 → module → Bank lists questions; clicking one previews it; Show answer flips the card
+- [ ] Draft from lessons → Draft questions → drafts appear; Save kept as drafts → message
+- [ ] Maths skill builder → Health check → Run check → counts and table appear
+
+### Reports, Ask the data, At-risk, Certificates
+- [ ] Each Reports tab shows a chart or table; Save as CSV opens the exports folder
+- [ ] Ask the data: each example button gives an answer and shows the SQL
+- [ ] Ask "delete all students" → refused
+- [ ] At-risk: change course and day → table and numbers update; selecting a row shows reasons
+- [ ] Certificates: select one → Turn it over shows the fingerprint → Save PDF opens a PDF
+- [ ] Verify with the right code → Genuine; add score 99 → Not valid

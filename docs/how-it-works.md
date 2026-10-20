@@ -46,7 +46,7 @@ Staff can also open any added student's **learner view** to see exactly what tha
 └──────────────────────────────┘
 ```
 
-Each layer only talks to the one below it. This is **separation of concerns**: the interface never writes SQL, the database never knows about buttons, and the rules can be tested without opening a window (that's what the 107 tests do).
+Each layer only talks to the one below it. This is **separation of concerns**: the interface never writes SQL, the database never knows about buttons, and the rules can be tested without opening a window (that's what the 109 tests do).
 
 **Example: clicking "Enroll"** (`webui/src/screens/Enrollments.jsx`)
 1. **Interface**: `onEnrollClicked()` sends `api('enroll', {student_id, course_id})` across the bridge.
@@ -70,7 +70,7 @@ Each layer only talks to the one below it. This is **separation of concerns**: t
 | Smart features | **Rule engines + scikit-learn** | Free, offline, explainable. No paid API, no language model. |
 | PDFs | **pypdf** (reading), **reportlab** + **qrcode** (certificates) | |
 | Charts | Hand-drawn SVG, animated with Motion | Stacked bars, lines, histograms, the isometric mastery skyline; every value also written as text. |
-| Tests | **pytest** | 107 automatic checks, including the bridge's permissions. |
+| Tests | **pytest** | 109 automatic checks, including the bridge's permissions. |
 
 ---
 
@@ -81,9 +81,9 @@ Each layer only talks to the one below it. This is **separation of concerns**: t
 | **OULAD**, Open University (UK), 2013–14 | 22 courses, 28,785 students, 32,593 enrollments, 173,739 assessment scores, 1.8M study days (from 10.6M click rows), 15,385 certificates |
 | **ASSISTments**, maths tutor, 2009–10 | 1 course, 102 skills, 18,209 problems, 275,458 answers |
 | **OpenStax** *Introduction to Python Programming* | 2 courses, 15 chapters, 85 lessons with video links, 390 questions with the official answer key |
-| **SciQ**, Allen Institute for AI | 1 course, 15 topics, 13,679 questions |
+| **SciQ**, Allen Institute for AI | 6 short science courses (15 topics), 4 readings and 40 questions per topic |
 
-Dataset students are anonymised (`OU-11391`). Their courses are historical and closed to new students. New students and courses are added in the app. Details and licences are in [database.md](database.md#data-sources).
+Dataset students are anonymised (`Student 11391`). Their courses are historical and closed to new students. New students and courses are added in the app. Details and licences are in [database.md](database.md#data-sources).
 
 ---
 
@@ -167,20 +167,63 @@ No paid API and no language model. Two kinds of "intelligence":
 
 ## 10. Design
 
-The full spec is in [DESIGN.md](../DESIGN.md). In short:
+### Direction
 
-- **The idea**: a classroom and a reading room. Chalkboard slate, a brass desk lamp, index cards, a book on a lectern. The colours and shapes come from those things, so the app doesn't look like a template.
-- **Colour**: sage-paper background, slate sidebar, brass for the main action, green / amber / red-pen for pass / warning / problem. No blue or purple. Dark mode is the chalkboard.
-- **Type**: Literata (a typeface designed for long reading on screens) for titles, numbers and lessons; Atkinson Hyperlegible (designed by the Braille Institute for legibility) for everything else.
-- **3D and motion, each with a job**:
-  - the sign-in book turns its pages once as the app opens;
-  - courses are index cards in a card-catalog drawer; hovering lifts one, picking pulls it out;
-  - mastery is an isometric skyline of blocks;
-  - quiz questions slide past like a deck of cards;
-  - question previews and certificates flip over to show the answer or the fingerprint;
-  - details slide in as sheets from the right; cards tilt slightly toward the pointer.
-- **Respect**: all motion switches off for people who set "reduce motion"; colour is never the only signal; Ctrl+K opens a jump-to palette with no animation, because it's used constantly.
-- Every colour, font size and spacing value lives in `webui/src/styles/tokens.css`.
+Lectern is a classroom and a reading room: chalkboard slate, a brass desk lamp, index cards in a card-catalog drawer, and a book open on a stand. The interface is built from those materials. Courses are index cards that slide out of a drawer, mastery is a small skyline of blocks, the sign-in screen is a book opening on a lectern. Data screens stay calm and legible; the three-dimensional, moving pieces live in a few places where they explain something (a drawer you pull from, a card you flip to check, a block that rises as you learn).
+
+Not the cream-paper, serif, clay-accent look, and no blue or purple anywhere.
+
+### Colour
+
+| Token | Light (day) | Dark (chalkboard) | Role |
+|---|---|---|---|
+| `--slate` | `#1E2B24` | `#111A15` | Sidebar, dark panels |
+| `--bg` | `#E3E7DC` | `#16201B` | App background (sage paper / board) |
+| `--card` | `#F6F7F2` | `#1F2C25` | Index cards, panels |
+| `--card-2` | `#EDF0E7` | `#26352D` | Inset areas, table stripes |
+| `--line` | `#C9D0C2` | `#34463B` | Borders, rules |
+| `--ink` | `#18201B` | `#E8ECE2` | Main text (chalk in dark) |
+| `--ink-2` | `#4E5A52` | `#A9B4AA` | Secondary text |
+| `--brass` | `#B8862B` | `#D4A445` | Primary action fill (ink text on it) |
+| `--brass-ink` | `#7A5714` | `#E2BC6A` | Brass as text/links |
+| `--green` | `#2E6B47` | `#7DBB91` | Good, passed |
+| `--amber` | `#94600E` | `#E0A94E` | Warning |
+| `--red` | `#AE3A2A` | `#EE8A78` | Errors, withdrawn (teacher's red pen) |
+
+Contrast: ink on card 15.6:1; ink-2 on card 6.6:1; ink on brass 6.1:1; brass-ink on card 5.9:1. Colour never carries meaning alone: every status also has a word.
+
+### Type
+
+- **Literata** (a typeface made for long reading on screens): page titles, numbers that matter, lesson text, certificate.
+- **Atkinson Hyperlegible** (designed for legibility by the Braille Institute): everything else: navigation, controls, tables, labels.
+- Scale (px): 13 · 15 · 17 (body) · 22 · 30 · 44 · 64. Tables 15, tabular figures. Lesson text 19/1.7 in Literata, max 68ch.
+- Sentence case everywhere. No all-caps labels.
+
+### Space, shape, depth
+
+- Spacing steps: 4 · 8 · 12 · 16 · 24 · 32 · 48 · 64.
+- Radius by role: controls 8, index cards 6 (paper is barely rounded), sheets 14, pills full.
+- Depth is physical: paper cards sit on the desk with a short, warm-tinted shadow `0 1px 0 rgba(30,43,36,.08), 0 8px 24px -12px rgba(30,43,36,.35)`. Lifted things cast longer shadows. Blur (`backdrop-filter`) only on floating layers: command palette, side sheets, toasts.
+
+### Motion
+
+- Springs for things you move: `stiffness 380, damping 32` (snappy) and `220/26` (drawers, sheets).
+- Ease for things that appear: `cubic-bezier(.2,.8,.2,1)`, 180–320 ms.
+- One orchestrated moment: the sign-in book opening. Other motion answers an action (hover a card, open a drawer, flip a card, answer a question).
+- 3D: `perspective 1200px`; tilt at most 8°; nothing spins for decoration.
+- `prefers-reduced-motion`: springs become instant, tilt and float switch off, flips become cross-fades.
+
+### Signature pieces
+
+1. **Book on a lectern** (sign-in): pages turn once on load.
+2. **Card-catalog drawer** (course catalog): index cards stacked in 3D; hovering lifts one out, clicking slides it fully out.
+3. **Mastery skyline**: isometric blocks, height = mastery, colour + label = state.
+4. **Flip cards**: quiz feedback and certificates turn over to show the answer / the fingerprint.
+5. **Sliding sheets**: student and course details slide in from the right over the list.
+
+### Anti-patterns for this project
+
+Cream + serif + clay accent; blue or purple; gradient washes; identical rounded cards with the same grey shadow everywhere; all-caps eyebrows; emoji icons; "→" on buttons; fade-up on every section.
 
 ## 11. Words you might be asked about
 
@@ -226,7 +269,7 @@ Use this to find your way around, or to answer "show me where that happens".
 | What | Where |
 |---|---|
 | `python -m app` opens the window | `app/__main__.py`: pywebview window showing `webui/dist/index.html`, with `Bridge` as its JavaScript API |
-| `python -m app --browser` | same interface in a browser, via `app/server.py` (localhost only) |
+| `python -m app --browser` | same interface in a browser, via the small local server in `app/__main__.py` (localhost only) |
 | Settings from `.env` | `app/config.py` |
 | Everything the interface can ask Python | `app/api.py` class `Api`: one method per action, `call()` checks roles and turns errors into messages |
 | First run asks for an admin account | `webui/src/screens/SignIn.jsx` → `Api.setup_admin` |
@@ -247,7 +290,7 @@ Use this to find your way around, or to answer "show me where that happens".
 | File | Notes |
 |---|---|
 | `openstax.py` | Reads the PDF outline for chapters and sections, extracts text in layout mode so code keeps its indentation, pulls out "Concepts in practice" questions and matches the answer key at the back of the book. |
-| `sciq.py` | Loads 13,679 questions; TF-IDF → LSA → k-means makes 15 topics. |
+| `sciq.py` | Loads 13,679 questions; TF-IDF → LSA → k-means makes 15 topics, grouped into 6 short courses. |
 | `assistments.py` | One row per answer (`order_id`), original problems only; skills become modules. |
 | `oulad.py` | Courses, assessments, students, enrollments, scores. `_import_clicks()` streams 10.6M rows into a staging database on disk and lets SQLite add them up, so memory stays low. Issues certificates for Pass and Distinction. |
 
@@ -305,4 +348,4 @@ Shared pieces:
 
 ### Tests (`tests/`)
 
-`conftest.py` builds a small database by hand (two courses, three modules, two students) so 101 tests run in seconds without the datasets. `test_api.py` checks the bridge: roles, error messages, a full quiz flow. `test_real_data.py` adds 6 checks against the real database when it exists.
+`conftest.py` builds a small database by hand (two courses, three modules, two students) so 103 tests run in seconds without the datasets. `test_api.py` checks the bridge: roles, error messages, a full quiz flow. `test_real_data.py` adds 6 checks against the real database when it exists.
