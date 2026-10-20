@@ -91,7 +91,6 @@ function Profile({ id, go, onChanged, onRemoved }) {
         <div>
           <div className="row" style={{ gap: 8 }}>
             <Pill tone={local ? 'brass' : undefined}>{sourceText[s.source]}</Pill>
-            {s.external_id && <span className="xsmall faint">Dataset ID {s.external_id}</span>}
             {data.has_login && <Pill tone="good">Has a login</Pill>}
           </div>
           <div className="row wrap" style={{ gap: 8, marginTop: 10 }}>
