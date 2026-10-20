@@ -3,6 +3,7 @@ from datetime import date, timedelta
 
 from db import transaction
 from services import clock
+from services.errors import ValidationError
 from services.quizzes import log_activity
 
 # Weight of the newest answer in the mastery average (exponentially weighted).
@@ -28,9 +29,16 @@ def course_progress(conn, student_id: int, course_id: int) -> dict:
 
 
 def complete_lesson(conn, student_id: int, lesson_id: int, watched_pct: int = 0) -> None:
-    course_id = conn.execute(
-        "SELECT m.course_id FROM lessons l JOIN modules m ON m.id = l.module_id WHERE l.id = ?", (lesson_id,)
-    ).fetchone()[0]
+    row = conn.execute(
+        """SELECT m.course_id, e.status FROM lessons l JOIN modules m ON m.id = l.module_id
+           LEFT JOIN enrollments e ON e.course_id = m.course_id AND e.student_id = ?
+           WHERE l.id = ?""", (student_id, lesson_id),
+    ).fetchone()
+    if row is None:
+        raise ValidationError("That lesson no longer exists.")
+    if row["status"] not in ("active", "completed"):
+        raise ValidationError("Enroll in the course before marking its lessons as read.")
+    course_id = row["course_id"]
     with transaction(conn):
         conn.execute(
             """INSERT INTO lesson_progress (student_id, lesson_id, completed_on, watched_pct) VALUES (?, ?, ?, ?)

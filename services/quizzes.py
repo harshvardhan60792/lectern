@@ -174,10 +174,14 @@ def submit(conn, attempt_id: int, answers: dict[int, int | None]) -> dict:
     today = clock.today()
     now = f"{today.isoformat()} {datetime.now():%H:%M:%S}"
 
+    if len(answers) > attempt["n_questions"]:
+        raise ValidationError("This attempt has fewer questions than that.")
     feedback, correct_count, modules_touched = [], 0, {}
     with transaction(conn):
         for qid, chosen in answers.items():
             q = conn.execute("SELECT module_id, explanation, prompt FROM questions WHERE id = ?", (qid,)).fetchone()
+            if q is None or not _belongs(conn, attempt, qid, q["module_id"]):
+                raise ValidationError("An answer is for a question that isn't in this quiz.")
             right = conn.execute(
                 "SELECT id, text FROM question_options WHERE question_id = ? AND is_correct = 1", (qid,)
             ).fetchone()
@@ -196,7 +200,7 @@ def submit(conn, attempt_id: int, answers: dict[int, int | None]) -> dict:
                              "chosen_option_id": chosen, "right_answer": right["text"] if right else None,
                              "explanation": q["explanation"]})
 
-        total = max(1, len(answers))
+        total = attempt["n_questions"]  # a skipped question counts as wrong
         score = round(100.0 * correct_count / total, 1)
         conn.execute("UPDATE quiz_attempts SET finished_at = ?, score = ? WHERE id = ?", (now, score, attempt_id))
 
@@ -219,13 +223,26 @@ def submit(conn, attempt_id: int, answers: dict[int, int | None]) -> dict:
                 (student_id, attempt["module_id"], status, score, score,
                  today.isoformat() if status == "completed" else None),
             )
-        course_id = conn.execute("SELECT course_id FROM modules WHERE id = ?", (attempt["module_id"],)).fetchone()[0]
-        log_activity(conn, student_id, course_id, len(answers))
+        per_course: dict[int, int] = {}
+        for module_id, (_, answered) in modules_touched.items():
+            cid = conn.execute("SELECT course_id FROM modules WHERE id = ?", (module_id,)).fetchone()[0]
+            per_course[cid] = per_course.get(cid, 0) + answered
+        for cid, answered in per_course.items():
+            log_activity(conn, student_id, cid, answered)
         if attempt["kind"] == "quiz":
+            course_id = conn.execute("SELECT course_id FROM modules WHERE id = ?", (attempt["module_id"],)).fetchone()[0]
             certificate = enrollments.check_completion(conn, student_id, course_id)
 
     return {"score": score, "correct": correct_count, "total": total, "feedback": feedback,
             "certificate": certificate, "kind": attempt["kind"]}
+
+
+def _belongs(conn, attempt, question_id: int, module_id: int) -> bool:
+    """A quiz answers questions from its own module; a review answers the student's queued mistakes."""
+    if attempt["kind"] == "quiz":
+        return module_id == attempt["module_id"]
+    return conn.execute("SELECT 1 FROM review_queue WHERE student_id = ? AND question_id = ?",
+                        (attempt["student_id"], question_id)).fetchone() is not None
 
 
 def log_activity(conn, student_id: int, course_id: int, amount: int = 1) -> None:

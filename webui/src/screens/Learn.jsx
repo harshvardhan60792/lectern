@@ -268,7 +268,11 @@ function Quiz({ sid, spec, done }) {
   const [first, ...code] = q.prompt.split('\n')
   const go = (step) => { setDir(step); setI((x) => x + step) }
   const unanswered = qs.filter((x) => !answers[x.id]).length
-  const submit = async () => setResult(await api('quiz_submit', { attempt_id: attempt.attempt_id, answers }))
+  // Every question is sent; a skipped one goes as null and counts as wrong.
+  const submit = async () => setResult(await api('quiz_submit', {
+    attempt_id: attempt.attempt_id,
+    answers: Object.fromEntries(qs.map((x) => [x.id, answers[x.id] ?? null])),
+  }))
 
   return (
     <div style={{ maxWidth: 860, margin: '0 auto' }}>

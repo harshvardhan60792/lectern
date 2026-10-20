@@ -4,6 +4,7 @@ from datetime import timedelta
 import pytest
 
 from services import certificates, clock, enrollments, progress, quizzes
+from services.errors import ValidationError
 from tests.conftest import TODAY, answer_all
 
 
@@ -88,3 +89,9 @@ def test_lesson_completion_counts(conn, world):
     progress.complete_lesson(conn, world["asha"], lesson)
     progress.complete_lesson(conn, world["asha"], lesson)  # twice is harmless
     assert progress.course_progress(conn, world["asha"], world["a"])["lessons_done"] == 1
+
+
+def test_lesson_needs_enrollment(conn, world):
+    lesson = conn.execute("SELECT id FROM lessons WHERE module_id = ?", (world["mods"]["Loops"],)).fetchone()[0]
+    with pytest.raises(ValidationError, match="Enroll"):
+        progress.complete_lesson(conn, world["asha"], lesson)

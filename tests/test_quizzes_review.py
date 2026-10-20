@@ -104,3 +104,21 @@ def test_question_validation(conn, world):
         quizzes.save_question(conn, mid, "Q?", ["same", "Same"], 0)
     with pytest.raises(ValidationError, match="correct"):
         quizzes.save_question(conn, mid, "Q?", ["a", "b"], 5)
+
+
+def test_skipped_questions_lower_the_score(conn, world):
+    enrollments.enroll(conn, world["asha"], world["a"])
+    attempt = quizzes.start_quiz(conn, world["asha"], world["mods"]["Variables"], seed=1)
+    first = attempt["questions"][0]["id"]
+    right = conn.execute("SELECT id FROM question_options WHERE question_id = ? AND is_correct = 1",
+                         (first,)).fetchone()[0]
+    result = quizzes.submit(conn, attempt["attempt_id"], {first: right})  # four questions left out
+    assert result["score"] == 20.0 and result["total"] == 5
+
+
+def test_answers_must_belong_to_the_quiz(conn, world):
+    enrollments.enroll(conn, world["asha"], world["a"])
+    attempt = quizzes.start_quiz(conn, world["asha"], world["mods"]["Variables"])
+    other = conn.execute("SELECT id FROM questions WHERE module_id = ?", (world["mods"]["Loops"],)).fetchone()[0]
+    with pytest.raises(ValidationError, match="isn't in this quiz"):
+        quizzes.submit(conn, attempt["attempt_id"], {other: None})

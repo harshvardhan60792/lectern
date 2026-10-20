@@ -112,7 +112,8 @@ def check_completion(conn, student_id: int, course_id: int) -> dict | None:
                   (SELECT COUNT(*) FROM modules m WHERE m.course_id = c.id
                      AND EXISTS (SELECT 1 FROM questions q WHERE q.module_id = m.id AND q.status = 'live')) AS needed,
                   (SELECT COUNT(*) FROM modules m JOIN module_progress mp ON mp.module_id = m.id
-                   WHERE m.course_id = c.id AND mp.student_id = ? AND mp.status = 'completed') AS done,
+                   WHERE m.course_id = c.id AND mp.student_id = ? AND mp.status = 'completed'
+                     AND EXISTS (SELECT 1 FROM questions q WHERE q.module_id = m.id AND q.status = 'live')) AS done,
                   e.status
            FROM courses c JOIN enrollments e ON e.course_id = c.id AND e.student_id = ?
            WHERE c.id = ?""",
