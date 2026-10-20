@@ -157,7 +157,7 @@ python -m db setup
 
 **OpenStax.** The textbook is split into two courses: *Python programming I* (chapters 1–7) and *Python programming II* (chapters 8–15), with I required for II. Chapters become modules, numbered sections become lessons, the book's own video links are attached to lessons, and the "Concepts in practice" questions become the quiz bank, marked with the book's answer key and explanations. The PDF is read in layout mode so code keeps its indentation.
 
-**SciQ.** One course, "Science foundations". SciQ has no topic labels, so the questions are grouped into 15 topics with TF-IDF, LSA and k-means clustering; each topic is named after its three strongest words. Each topic's readings are the supporting paragraphs closest to the topic's centre.
+**SciQ.** Six short science courses (chemistry, physics, earth, cells, the human body, plants and animals). SciQ has no topic labels, so the questions are grouped into 15 topics with TF-IDF, LSA and k-means clustering; each topic is named after its three strongest words. Each topic's readings are the supporting paragraphs closest to the topic's centre.
 
 ### Citations
 

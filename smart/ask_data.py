@@ -105,7 +105,7 @@ MONTHS = {m: i for i, m in enumerate(
 TOPIC_COURSES = {
     "python": ("title", "%Python%"),
     "maths": ("code", "ASSIST-0910"), "math": ("code", "ASSIST-0910"), "mathematics": ("code", "ASSIST-0910"),
-    "science": ("code", "SCI-101"),
+    "science": ("prefix", "SCI-%"),
     "stem": ("subject", "STEM"),
     "social sciences": ("subject", "Social Sciences"),
 }
@@ -275,7 +275,8 @@ def _course_filters(q: str, p: Parsed, courses: list[dict]) -> None:
             return
     for word, (kind, value) in TOPIC_COURSES.items():
         if _has(q, word):
-            p.filters.append(({"title": "course_title", "code": "course_code", "subject": "subject"}[kind],
+            p.filters.append(({"title": "course_title", "code": "course_code", "prefix": "course_prefix",
+                               "subject": "subject"}[kind],
                               "course" if kind != "subject" else "subject", value))
             return
     # Typo-tolerant title match on "in/for <words>".
@@ -295,7 +296,8 @@ def _course_filters(q: str, p: Parsed, courses: list[dict]) -> None:
         hit = tt.best_match(word, list(TOPIC_COURSES), cutoff=0.8) if len(word) > 4 else None
         if hit:
             kind, value = TOPIC_COURSES[hit]
-            p.filters.append(({"title": "course_title", "code": "course_code", "subject": "subject"}[kind],
+            p.filters.append(({"title": "course_title", "code": "course_code", "prefix": "course_prefix",
+                               "subject": "subject"}[kind],
                               "course" if kind != "subject" else "subject", value))
             return
 
@@ -640,7 +642,7 @@ FORBIDDEN = re.compile(r"\b(INSERT|UPDATE|DELETE|DROP|ALTER|CREATE|REPLACE|ATTAC
 
 
 def check_safe(sql: str) -> None:
-    """Belt and braces: the builder only makes SELECTs, but check anyway."""
+    """A second check: the builder only makes SELECTs, and this refuses anything else."""
     if not SAFE_START.match(sql) or FORBIDDEN.search(sql) or ";" in sql:
         raise NotUnderstood("Refused: only single read-only SELECT queries are allowed.")
 

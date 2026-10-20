@@ -6,8 +6,8 @@ Science Questions. W-NUT 2017. Allen Institute for AI. Licence: CC BY-NC 3.0.
 SciQ has no topic labels, so we find topics ourselves: every question and its
 supporting paragraph become a TF-IDF vector, LSA (truncated SVD) compresses
 those to 100 dimensions so related words count together, and k-means groups
-them into clusters. Each cluster becomes one module, named after its strongest
-words.
+them into clusters. Each cluster becomes one module. Related modules are then
+grouped into short courses of two or three modules each.
 """
 import json
 import random
@@ -31,8 +31,25 @@ FILLER = {
     "usually", "like", "just", "include", "includes", "number", "small", "large", "main", "shown",
     "produce", "produced", "new", "way", "ways", "time", "results", "result",
 }
-READINGS_PER_TOPIC = 8
-ATTRIBUTION = "Questions: SciQ dataset (Welbl, Liu & Gardner, 2017, Allen Institute for AI), CC BY-NC 3.0."
+READINGS_PER_TOPIC = 4
+QUESTIONS_PER_TOPIC = 40
+DESCRIBING = ("ed", "ous", "ive", "ent", "al", "ic", "eous")
+
+# Short courses, each built from related topics. A topic is found by its strongest word.
+COURSES = [
+    ("SCI-101", "Chemistry basics", "Chemistry", "What matter is made of, and how gases and substances react.",
+     [("atoms", "Atoms and elements"), ("gas", "Gases and reactions")]),
+    ("SCI-102", "Physics basics", "Physics", "Forces, waves, light, and the forms energy takes.",
+     [("light", "Forces, waves and light"), ("energy", "Energy and heat")]),
+    ("SCI-103", "Earth and how science works", "Earth science", "Water, rocks and oceans, and how scientists test ideas.",
+     [("water", "Water, rocks and oceans"), ("science", "How science works")]),
+    ("SCI-104", "Cells, genes and disease", "Biology", "The cell, how traits pass on through DNA, and what makes us ill.",
+     [("cell", "The cell"), ("genes", "Genes and DNA"), ("disease", "Germs and disease")]),
+    ("SCI-105", "The human body", "Biology", "How the body uses food, moves, thinks, and moves blood around.",
+     [("body", "Food and hormones"), ("bones", "Bones, brain and nerves"), ("blood", "Heart and blood")]),
+    ("SCI-106", "Plants and animals", "Biology", "Animal groups, how plants live, and how living things depend on each other.",
+     [("animals", "Animal groups"), ("plants", "How plants live"), ("species", "Living things together")]),
+]
 
 
 def _load(folder: Path) -> list[dict]:
@@ -79,53 +96,66 @@ def run(conn: sqlite3.Connection, raw_dir: Path, log=print) -> None:
                        "size": len(members), "members": members})
     topics.sort(key=lambda t: -t["size"])
 
+    by_word = {t["words"][0].lower(): t for t in topics}
     rng = random.Random(7)
     with transaction(conn):
-        cur = conn.execute(
-            """INSERT INTO courses (code, title, subject, description, source, attribution)
-               VALUES ('SCI-101', 'Science foundations', 'Science', ?, 'sciq', ?)""",
-            ("Physics, chemistry, biology and earth science questions written for school-level exams. "
-             f"Grouped into {N_TOPICS} topics by k-means clustering of the question text.",
-             ATTRIBUTION),
-        )
-        course_id = cur.lastrowid
-
-        for pos, topic in enumerate(topics, start=1):
-            title = ", ".join(topic["words"]).capitalize()
+        for code, title, subject, description, parts in COURSES:
             cur = conn.execute(
-                "INSERT INTO modules (course_id, position, title, kind) VALUES (?, ?, ?, 'topic')",
-                (course_id, pos, title),
+                "INSERT INTO courses (code, title, subject, description, source) VALUES (?, ?, ?, ?, 'sciq')",
+                (code, title, subject, description),
             )
-            module_id = cur.lastrowid
+            course_id = cur.lastrowid
+            for pos, (word, module_title) in enumerate(parts, start=1):
+                _add_module(conn, course_id, pos, module_title, by_word[word], items, reduced, km, rng)
+    log(f"SciQ: {len(COURSES)} short courses")
 
-            # Readings: the supporting paragraphs closest to the topic's centre.
-            members = topic["members"]
-            closeness = reduced[members] @ km.cluster_centers_[topic["k"]]
-            order = members[np.argsort(-closeness)]
-            lesson_pos = 0
-            for idx in order:
-                support = items[idx]["support"].strip()
-                if len(support) < 250:
-                    continue
-                lesson_pos += 1
-                conn.execute(
-                    "INSERT INTO lessons (module_id, position, title, body) VALUES (?, ?, ?, ?)",
-                    (module_id, lesson_pos, f"Reading: {items[idx]['correct_answer']}", support),
-                )
-                if lesson_pos == READINGS_PER_TOPIC:
-                    break
 
-            for idx in members:
-                q = items[idx]
-                cur = conn.execute(
-                    """INSERT INTO questions (module_id, source, external_id, prompt, explanation, support)
-                       VALUES (?, 'sciq', ?, ?, NULL, ?)""",
-                    (module_id, q["external_id"], q["question"].strip(), q["support"].strip() or None),
-                )
-                options = [(q["correct_answer"], 1), (q["distractor1"], 0), (q["distractor2"], 0), (q["distractor3"], 0)]
-                rng.shuffle(options)
-                conn.executemany(
-                    "INSERT INTO question_options (question_id, position, text, is_correct) VALUES (?, ?, ?, ?)",
-                    [(cur.lastrowid, i, text.strip(), ok) for i, (text, ok) in enumerate(options, start=1)],
-                )
-    log("SciQ: done")
+def _good_reading(item: dict) -> bool:
+    """A passage that reads well on its own: plain prose, a clear one- or two-word subject."""
+    text, subject = item["support"].strip(), item["correct_answer"].strip()
+    first_sentence = text.split(". ")[0].lower()
+    words = subject.lower().split()
+    # Answers like "is conserved", "time" or "polarized" don't work as a lesson title.
+    if words[0] in ("is", "are", "time") or (len(words) == 1 and words[0].endswith(DESCRIBING)):
+        return False
+    return (300 <= len(text) <= 1500 and text[:1].isupper() and "?" not in text and "chapter" not in text.lower()
+            and subject.replace(" ", "").isalpha() and len(subject) >= 4 and len(subject.split()) <= 3
+            and subject.lower() in first_sentence)
+
+
+def _add_module(conn, course_id, pos, title, topic, items, reduced, km, rng) -> None:
+    module_id = conn.execute(
+        "INSERT INTO modules (course_id, position, title, kind) VALUES (?, ?, ?, 'topic')", (course_id, pos, title),
+    ).lastrowid
+    # The questions and readings closest to the topic's centre are the clearest examples of it.
+    members = topic["members"]
+    order = members[np.argsort(-(reduced[members] @ km.cluster_centers_[topic["k"]]))]
+
+    readings, seen = [], set()
+    for i in order:
+        keys = {items[i]["support"].strip()[:80], items[i]["correct_answer"].strip().lower()[:6]}
+        if _good_reading(items[i]) and not keys & seen:  # several questions share one passage
+            readings.append(i)
+            seen |= keys
+        if len(readings) == READINGS_PER_TOPIC:
+            break
+    for lesson_pos, idx in enumerate(readings, start=1):
+        answer = items[idx]["correct_answer"].strip()
+        conn.execute(
+            "INSERT INTO lessons (module_id, position, title, body) VALUES (?, ?, ?, ?)",
+            (module_id, lesson_pos, answer[:1].upper() + answer[1:], items[idx]["support"].strip()),
+        )
+
+    for idx in order[:QUESTIONS_PER_TOPIC]:
+        q = items[idx]
+        cur = conn.execute(
+            """INSERT INTO questions (module_id, source, external_id, prompt, explanation, support)
+               VALUES (?, 'sciq', ?, ?, NULL, ?)""",
+            (module_id, q["external_id"], q["question"].strip(), q["support"].strip() or None),
+        )
+        options = [(q["correct_answer"], 1), (q["distractor1"], 0), (q["distractor2"], 0), (q["distractor3"], 0)]
+        rng.shuffle(options)
+        conn.executemany(
+            "INSERT INTO question_options (question_id, position, text, is_correct) VALUES (?, ?, ?, ?)",
+            [(cur.lastrowid, i, text.strip(), ok) for i, (text, ok) in enumerate(options, start=1)],
+        )
