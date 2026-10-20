@@ -619,7 +619,9 @@ def _students_with_threshold(p: Parsed, said: list[str], count: bool) -> Built:
     said = said + [f"average score {op} {value:g}"]
     if count:
         return Built(f"SELECT COUNT(*) AS students FROM (\n{inner}\n)", params, _explain("count of students", said, None))
-    return Built(inner + f"\nORDER BY average_score\nLIMIT {DEFAULT_LIST}", params, _explain("students", said, None))
+    order = "DESC" if op.startswith(">") else "ASC"  # "above 90" lists the highest first, "below 40" the lowest
+    return Built(inner + f"\nORDER BY average_score {order}\nLIMIT {DEFAULT_LIST}", params,
+                 _explain("students", said, None))
 
 
 def _explain(what: str, said: list[str], group: str | None) -> str:

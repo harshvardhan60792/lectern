@@ -6,10 +6,10 @@ edited facts no longer matches the one stored when it was issued.
 """
 import hashlib
 import io
-from datetime import date
 from pathlib import Path
 
 from db import transaction
+from services import common
 from services.common import ValidationError
 
 # Mixed into every fingerprint so a hash can't be recomputed without the app.
@@ -55,7 +55,7 @@ def issue(conn, student_id: int, course_id: int, issued_on: str | None = None, g
     if info is None:
         raise ValueError("Unknown student or course.")
 
-    issued_on = issued_on or date.today().isoformat()
+    issued_on = issued_on or common.today().isoformat()
     score = course_score(conn, student_id, course_id)
     code = certificate_code(student_id, course_id)
     fp = fingerprint(code, info["display_name"], info["title"], issued_on, score)

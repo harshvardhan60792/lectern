@@ -45,6 +45,9 @@ def verify_password(password: str, stored: str) -> bool:
     return hmac.compare_digest(candidate.hex(), digest)
 
 
+_DUMMY_HASH = hash_password(secrets.token_hex(8))
+
+
 def has_users(conn) -> bool:
     return conn.execute("SELECT 1 FROM users LIMIT 1").fetchone() is not None
 
@@ -65,6 +68,8 @@ def _check_new_account(conn, username: str, password: str) -> str:
 def create_user(conn, username: str, password: str, role: str,
                 student_id: int | None = None, instructor_id: int | None = None) -> int:
     username = _check_new_account(conn, username, password)
+    if student_id is not None and conn.execute("SELECT 1 FROM users WHERE student_id = ?", (student_id,)).fetchone():
+        raise ValidationError("This student already has a login.")
     with transaction(conn):
         cur = conn.execute(
             """INSERT INTO users (username, password_hash, role, student_id, instructor_id)
@@ -98,8 +103,10 @@ def login(conn, username: str, password: str) -> Session:
            WHERE u.username = ?""",
         (username.strip(),),
     ).fetchone()
-    # Same message either way, so the screen doesn't reveal which usernames exist.
-    if row is None or not verify_password(password, row["password_hash"]):
+    # Same message and the same slow hash check either way, so neither the words on
+    # screen nor the time it takes reveal which usernames exist.
+    stored = row["password_hash"] if row else _DUMMY_HASH
+    if not verify_password(password, stored) or row is None:
         raise ValidationError("Wrong username or password.")
     conn.execute("UPDATE users SET last_login_at = datetime('now', 'localtime') WHERE id = ?", (row["id"],))
     set_current_user(conn, row["id"])

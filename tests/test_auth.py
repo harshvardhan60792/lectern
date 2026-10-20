@@ -49,3 +49,9 @@ def test_change_password(conn):
         auth.change_password(conn, uid, "wrong-old-pw", "new-password-1")
     auth.change_password(conn, uid, "long-enough-1", "new-password-1")
     assert auth.login(conn, "admin", "new-password-1")
+
+
+def test_a_student_gets_one_login(conn, world):
+    auth.create_user(conn, "asha", "long-enough-1", "student", student_id=world["asha"])
+    with pytest.raises(ValidationError, match="already has a login"):
+        auth.create_user(conn, "asha2", "long-enough-1", "student", student_id=world["asha"])
