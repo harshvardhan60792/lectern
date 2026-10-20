@@ -152,7 +152,7 @@ Fifteen slides is a good length. Each slide below has: **title**, **what goes on
 ### Slide 13: Proof it works
 - Title: **Tested, measured, and rebuilt from scratch in 80 seconds**
 - Four numbers:
-  - **106** automated tests, all passing
+  - **107** automated tests, all passing
   - **33,003** real students across 26 courses
   - **15,385** certificates, each with a fingerprint
   - **0** paid services or internet needed

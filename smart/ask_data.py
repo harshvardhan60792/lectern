@@ -583,7 +583,7 @@ def q_where_threshold(q: _Query, p: Parsed, subject: str) -> None:
 def _top_students(p: Parsed, said: list[str], direction: str, limit: int) -> Built:
     q = _Query("scores")
     q.need("s")
-    for kind, label, value in p.filters:
+    for kind, _label, value in p.filters:
         if kind in FILTER_SQL:
             sql, alias = FILTER_SQL[kind]
             q.need(alias)
@@ -603,7 +603,7 @@ def _top_students(p: Parsed, said: list[str], direction: str, limit: int) -> Bui
 def _students_with_threshold(p: Parsed, said: list[str], count: bool) -> Built:
     q = _Query("scores")
     q.need("s")
-    for kind, label, value in p.filters:
+    for kind, _label, value in p.filters:
         if kind in FILTER_SQL:
             sql, alias = FILTER_SQL[kind]
             q.need(alias)

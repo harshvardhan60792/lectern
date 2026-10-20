@@ -56,7 +56,7 @@ A `.venv` folder already exists from when the app was built. You'll delete it an
    ```powershell
    Copy-Item .env.example .env
    ```
-8. Run the tests. The last line should say `106 passed`:
+8. Run the tests. The last line should say `107 passed`:
    ```powershell
    python -m pytest
    ```
@@ -168,7 +168,7 @@ Then run it with `2`, then `3`. Script 2's error even suggests the fix; notice t
    ```powershell
    python -m pytest
    ```
-   Last line: `106 passed`.
+   Last line: `107 passed`.
 2. Break something on purpose. Open `services\enrollments.py` and find these three lines inside `enroll` (search with **Ctrl+F** for `Finish these first`):
    ```python
        missing = missing_prerequisites(conn, student_id, course_id)

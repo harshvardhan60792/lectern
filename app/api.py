@@ -291,11 +291,11 @@ class Api:
 
     @signed_in
     def lesson(self, lesson_id: int):
-        l = courses.lesson(self.conn, lesson_id)
-        if l is None:
+        lesson = courses.lesson(self.conn, lesson_id)
+        if lesson is None:
             raise ValidationError("That lesson no longer exists.")
-        l["blocks"] = _blocks(l["body"])
-        return l
+        lesson["blocks"] = _blocks(lesson["body"])
+        return lesson
 
     @staff_only
     def lesson_save(self, module_id: int, title: str, body: str, video_url: str = "", lesson_id: int | None = None):
@@ -557,7 +557,7 @@ class Api:
         for m in courses.modules(self.conn, course_id):
             done = progress.lessons_done(self.conn, sid, m["id"])
             mods.append(m | {"mastery": tiles.get(m["id"]), "lessons_list": [
-                l | {"done": l["id"] in done} for l in courses.lessons(self.conn, m["id"])]})
+                lesson | {"done": lesson["id"] in done} for lesson in courses.lessons(self.conn, m["id"])]})
         return {"course": c, "progress": progress.course_progress(self.conn, sid, course_id),
                 "pace": progress.pace(self.conn, sid, course_id), "modules": mods}
 

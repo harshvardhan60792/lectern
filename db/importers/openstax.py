@@ -81,8 +81,8 @@ def _clean_lines(text: str) -> list[Line]:
 
 def _block(lines: list[Line], attr: str = "lead") -> str:
     """Lines of a code sample, with their indentation relative to each other."""
-    base = min(getattr(l, attr) for l in lines)
-    return "\n".join(" " * (getattr(l, attr) - base) + l for l in lines)
+    base = min(getattr(line, attr) for line in lines)
+    return "\n".join(" " * (getattr(line, attr) - base) + line for line in lines)
 
 
 
@@ -288,8 +288,8 @@ def run(conn: sqlite3.Connection, raw_dir: Path, log=print) -> dict:
                     if not lines or sec["title"].lower() == "chapter summary":
                         continue
                     questions, body_lines = _extract_questions(lines)
-                    video = next((m.group(1) for l in body_lines for m in [VIDEO.search(l)] if m), None)
-                    body_lines = [l for l in body_lines if not VIDEO.search(l) and l != "CHECKPOINT"]
+                    video = next((m.group(1) for line in body_lines for m in [VIDEO.search(line)] if m), None)
+                    body_lines = [line for line in body_lines if not VIDEO.search(line) and line != "CHECKPOINT"]
                     lesson_pos += 1
                     conn.execute(
                         """INSERT INTO lessons (module_id, position, title, body, video_url, source_page)

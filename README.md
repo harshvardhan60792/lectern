@@ -118,7 +118,7 @@ db/         schema, connection, importers for each dataset
 services/   students, courses, enrollments, quizzes, review queue, progress, certificates, reports, auth
 smart/      ask the data, at-risk model, drafter, coach, recommender, text tools
 webui/      the interface: React screens, design tokens (src/styles/tokens.css), charts, 3D pieces
-tests/      106 tests: 100 on a small hand-built database, 6 on the real one
+tests/      107 tests: 101 on a small hand-built database, 6 on the real one
 docs/       how it works, the database and its data, review questions, learning tasks, PPT brief
 DESIGN.md   the look: palette, type, motion, signature pieces
 ```

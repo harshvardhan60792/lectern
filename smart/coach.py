@@ -203,12 +203,12 @@ def week_plan(conn, student_id: int, per_day: int = 3) -> list[dict]:
                 put(min(slot, 6), f"Reread {tile['title']} and retake its quiz ({e['title']})")
                 slot += 1
 
-    lessons = [(e, l) for e in f["active"] for l in e["next_lessons"]]
+    lessons = [lesson for e in f["active"] for lesson in e["next_lessons"]]
     day = 0
-    for i, (e, lesson) in enumerate(lessons):
+    for i, lesson in enumerate(lessons):
         if not put(day, f"Read {lesson['title']}"):
             break
-        nxt = lessons[i + 1][1] if i + 1 < len(lessons) else None
+        nxt = lessons[i + 1] if i + 1 < len(lessons) else None
         if nxt is None or nxt["module_id"] != lesson["module_id"]:
             put(day, f"Take the {lesson['module_title']} quiz")
         if len(days[day]["tasks"]) >= per_day - 1:

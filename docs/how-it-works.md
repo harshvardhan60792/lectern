@@ -46,7 +46,7 @@ Staff can also open any added student's **learner view** to see exactly what tha
 └──────────────────────────────┘
 ```
 
-Each layer only talks to the one below it. This is **separation of concerns**: the interface never writes SQL, the database never knows about buttons, and the rules can be tested without opening a window (that's what the 106 tests do).
+Each layer only talks to the one below it. This is **separation of concerns**: the interface never writes SQL, the database never knows about buttons, and the rules can be tested without opening a window (that's what the 107 tests do).
 
 **Example: clicking "Enroll"** (`webui/src/screens/Enrollments.jsx`)
 1. **Interface**: `onEnrollClicked()` sends `api('enroll', {student_id, course_id})` across the bridge.
@@ -70,7 +70,7 @@ Each layer only talks to the one below it. This is **separation of concerns**: t
 | Smart features | **Rule engines + scikit-learn** | Free, offline, explainable. No paid API, no language model. |
 | PDFs | **pypdf** (reading), **reportlab** + **qrcode** (certificates) | |
 | Charts | Hand-drawn SVG, animated with Motion | Stacked bars, lines, histograms, the isometric mastery skyline; every value also written as text. |
-| Tests | **pytest** | 106 automatic checks, including the bridge's permissions. |
+| Tests | **pytest** | 107 automatic checks, including the bridge's permissions. |
 
 ---
 
@@ -305,4 +305,4 @@ Shared pieces:
 
 ### Tests (`tests/`)
 
-`conftest.py` builds a small database by hand (two courses, three modules, two students) so 100 tests run in seconds without the datasets. `test_api.py` checks the bridge: roles, error messages, a full quiz flow. `test_real_data.py` adds 6 checks against the real database when it exists.
+`conftest.py` builds a small database by hand (two courses, three modules, two students) so 101 tests run in seconds without the datasets. `test_api.py` checks the bridge: roles, error messages, a full quiz flow. `test_real_data.py` adds 6 checks against the real database when it exists.
