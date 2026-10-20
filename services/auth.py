@@ -128,6 +128,24 @@ def change_password(conn, user_id: int, old: str, new: str) -> None:
         conn.execute("UPDATE users SET password_hash = ? WHERE id = ?", (hash_password(new), user_id))
 
 
+def reset_password(conn, user_id: int, new: str) -> None:
+    """For the admin, when someone forgets their password."""
+    if len(new) < MIN_PASSWORD:
+        raise ValidationError(f"Password needs at least {MIN_PASSWORD} characters.")
+    with transaction(conn):
+        cur = conn.execute("UPDATE users SET password_hash = ? WHERE id = ?", (hash_password(new), user_id))
+    if cur.rowcount == 0:
+        raise ValidationError("That account no longer exists.")
+
+
+def remove_user(conn, user_id: int) -> None:
+    """Removes the sign-in only. The student or instructor record stays."""
+    with transaction(conn):
+        cur = conn.execute("DELETE FROM users WHERE id = ?", (user_id,))
+    if cur.rowcount == 0:
+        raise ValidationError("That account no longer exists.")
+
+
 def list_users(conn) -> list[dict]:
     return [dict(r) for r in conn.execute(
         """SELECT u.id, u.username, u.role, u.last_login_at,

@@ -82,7 +82,7 @@ export default function Catalog({ session, params, go }) {
 
   return (
     <>
-      <PageHead title="Browse courses" sub="Pull a card from the drawer to read about the course. Some courses unlock only after you finish another one." />
+      <PageHead title="Browse courses" sub="Some courses open after you finish another." />
       {data.length === 0 ? <Empty title="No open courses yet" /> : (
         <div className="split" style={{ gridTemplateColumns: 'minmax(0, 1.15fr) minmax(0, 1fr)', alignItems: 'start' }}>
           <Drawer courses={data} picked={picked} onPick={setPicked} />
@@ -112,7 +112,6 @@ export default function Catalog({ session, params, go }) {
                     <Button onClick={enroll} disabled={c.missing.length > 0}>Enroll in this course</Button>
                   )}
                 </div>
-                {c.attribution && <p className="xsmall faint">{c.attribution}</p>}
               </motion.section>
             )}
           </AnimatePresence>

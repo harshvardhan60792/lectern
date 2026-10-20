@@ -33,19 +33,17 @@ export default function Overview({ go }) {
   if (error) return <p className="error-text">{error}</p>
   if (!data) return <div className="stack"><Loading height={280} /><Loading height={200} /></div>
   const { totals, outcomes, activity, model } = data
-  const by = totals.students_by_source
 
   return (
     <>
-      <PageHead title="Overview" sub="Everything in the database at a glance. Open University and ASSISTments records are real, anonymised data." />
+      <PageHead title="Overview" />
 
       <section className="hero" style={{ marginBottom: 20 }}>
         <div className="hero-copy">
           <p style={{ color: 'var(--on-slate-2)' }}>Students on record</p>
           <div className="hero-num">{fmt(totals.students)}</div>
           <p style={{ marginTop: 14, color: 'var(--on-slate-2)', maxWidth: 420 }}>
-            {fmt(by.oulad || 0)} from the Open University, {fmt(by.assistments || 0)} from ASSISTments and {fmt(by.local || 0)} added here,
-            across {fmt(totals.courses)} courses and {fmt(totals.enrollments)} enrollments.
+            Across {fmt(totals.courses)} courses and {fmt(totals.enrollments)} enrollments.
           </p>
           <div className="row" style={{ marginTop: 22 }}>
             <Button onClick={() => go('students')}>Open students</Button>
@@ -59,8 +57,8 @@ export default function Overview({ go }) {
         <div className="card card-pad">
           <div className="card-head">
             <div>
-              <h2 className="card-title">How Open University courses ended</h2>
-              <p className="card-sub">Share who passed, failed or withdrew in each presentation, 2013–14.</p>
+              <h2 className="card-title">How past courses ended</h2>
+              <p className="card-sub">Passed, failed or withdrew, 2013–14.</p>
             </div>
           </div>
           <StackedBars labelWidth={120} rowHeight={20}

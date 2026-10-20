@@ -69,7 +69,7 @@ function Preview({ id, onEdit, onChanged }) {
             <ol className="stack" style={{ gap: 6, paddingLeft: 0, listStyle: 'none', marginTop: 12 }}>
               {data.options.map((o, i) => <li key={o.id} className="small"><b>{LETTERS[i]}.</b> <span style={{ whiteSpace: 'pre-wrap' }}>{o.text}</span></li>)}
             </ol>
-          ) : <p className="small muted">The ASSISTments log records who answered and whether they were right, not the problem text. These power the health check and mastery.</p>}
+          ) : <p className="small muted">This practice set records who answered and whether they were right, not the problem text.</p>}
         </>)}
         back={face(<>
           <p className="small faint">Right answer</p>
@@ -152,7 +152,7 @@ function DraftTab({ moduleId, source }) {
       <div className="card card-pad stack">
         <div>
           <h2 className="card-title">Draft questions from text</h2>
-          <p className="card-sub">Uses this module's lessons, or text you paste. Key terms come from TF-IDF; wrong options are terms used in similar sentences elsewhere in the course (LSA). Check every draft before saving.</p>
+          <p className="card-sub">Drafts from this module's lessons, or from text you paste. Check each one before saving.</p>
         </div>
         <textarea className="textarea" style={{ minHeight: 90 }} placeholder="Leave empty to use the module's lessons" value={text} onChange={(e) => setText(e.target.value)} aria-label="Text to draft from" />
         <div className="row">
@@ -205,7 +205,7 @@ function HealthTab({ courseId, moduleId }) {
       <div className="card card-pad stack">
         <div>
           <h2 className="card-title">How well do the questions work?</h2>
-          <p className="card-sub">Difficulty is the share of students who got it right. Discrimination is that share among the strongest 27% of students minus the weakest 27%. Good questions separate strong from weak. Uses each student's first answer.</p>
+          <p className="card-sub">Finds questions that are too easy, too hard, or may have the wrong answer marked.</p>
         </div>
         <div className="row">
           <Select label="Scope" value={scope} onChange={setScope} options={[{ value: 'course', label: 'Whole course' }, { value: 'module', label: 'Selected module' }]} width={180} />
@@ -265,7 +265,7 @@ export default function Questions() {
   const mods = detail.data?.modules || []
   return (
     <>
-      <PageHead title="Question bank" sub="Questions for each module, drafts made from lesson text, and a health check on how questions perform." />
+      <PageHead title="Question bank" />
       <div className="row wrap" style={{ marginBottom: 18 }}>
         <Select label="Course" value={courseId} onChange={(v) => { setCourseId(v); setModuleId('') }} width={340}
           options={(courses.data || []).filter((c) => c.modules).map((c) => ({ value: c.id, label: `${c.code}  ${c.title}` }))} />

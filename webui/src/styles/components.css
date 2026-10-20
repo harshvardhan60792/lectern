@@ -124,7 +124,6 @@
 .search-wrap { position: relative; }
 .search-wrap svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--ink-3); pointer-events: none; }
 .error-text { color: var(--red); font-size: var(--fs-sm); }
-.good-text { color: var(--green); font-size: var(--fs-sm); }
 
 /* ---------- Pills ---------- */
 
@@ -215,7 +214,6 @@
 
 /* ---------- 3D helpers ---------- */
 
-.stage-3d { perspective: 1200px; }
 .preserve-3d { transform-style: preserve-3d; }
 
 /* ---------- Split layouts ---------- */

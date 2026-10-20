@@ -343,9 +343,8 @@ class Api:
         enrollments.enroll(self.conn, self._student_id(student_id), course_id)
         return True
 
-    @staff_only
-    def drop(self, student_id: int, course_id: int):
-        enrollments.drop(self.conn, student_id, course_id)
+    def drop(self, course_id: int, student_id: int | None = None):
+        enrollments.drop(self.conn, self._student_id(student_id), course_id)
         return True
 
     @staff_only
@@ -511,6 +510,18 @@ class Api:
         auth.create_instructor(self.conn, name, email, username, password)
         return True
 
+    @admin_only
+    def password_reset(self, user_id: int, password: str):
+        auth.reset_password(self.conn, user_id, password)
+        return True
+
+    @admin_only
+    def user_remove(self, user_id: int):
+        if int(user_id) == self.session.user_id:
+            raise ValidationError("You can't remove your own account.")
+        auth.remove_user(self.conn, user_id)
+        return True
+
     def password_change(self, old: str, new: str, repeat: str):
         if self.session is None:
             raise Forbidden("Sign in first.")
@@ -558,7 +569,10 @@ class Api:
             done = progress.lessons_done(self.conn, sid, m["id"])
             mods.append(m | {"mastery": tiles.get(m["id"]), "lessons_list": [
                 lesson | {"done": lesson["id"] in done} for lesson in courses.lessons(self.conn, m["id"])]})
-        return {"course": c, "progress": progress.course_progress(self.conn, sid, course_id),
+        status = self.conn.execute("SELECT status FROM enrollments WHERE student_id = ? AND course_id = ?",
+                                   (sid, course_id)).fetchone()
+        return {"course": c, "status": status[0] if status else None,
+                "progress": progress.course_progress(self.conn, sid, course_id),
                 "pace": progress.pace(self.conn, sid, course_id), "modules": mods}
 
     def lesson_complete(self, lesson_id: int, student_id: int | None = None):
@@ -590,7 +604,7 @@ class Api:
                 continue
             full = courses.get(self.conn, c["id"])
             out.append(c | {
-                "description": full["description"], "attribution": full["attribution"], "pass_mark": full["pass_mark"],
+                "description": full["description"], "pass_mark": full["pass_mark"],
                 "status": mine.get(c["id"]),
                 "requires": courses.prerequisites(self.conn, c["id"]),
                 "missing": enrollments.missing_prerequisites(self.conn, sid, c["id"]),

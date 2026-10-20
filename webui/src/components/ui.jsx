@@ -1,6 +1,6 @@
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { Search, X } from 'lucide-react'
-import { useEffect, useId, useRef } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { ease, spring, springSoft } from '../lib/format'
 
 export function Button({ kind = 'primary', size, icon: Icon, children, className = '', ...rest }) {
@@ -252,4 +252,25 @@ export function PageHead({ title, sub, actions }) {
 
 export function Loading({ height = 160 }) {
   return <div className="skeleton" style={{ height }} aria-label="Loading" />
+}
+
+/** A small form in a dialog: fields are [key, label, type, hint]. */
+export function FormDialog({ open, onClose, title, fields, submit, onDone }) {
+  const [values, setValues] = useState({})
+  const [error, setError] = useState('')
+  const save = async () => {
+    try { await submit(values); onDone(values); setValues({}); onClose() } catch (e) { setError(e.message) }
+  }
+  return (
+    <Dialog open={open} onClose={() => { setError(''); onClose() }} title={title}
+      footer={<><Button kind="secondary" onClick={onClose}>Cancel</Button><Button onClick={save}>Save</Button></>}>
+      {fields.map(([key, label, type, hint]) => (
+        <Field key={key} label={label} hint={hint}>{(id) => (
+          <input id={id} className="input" type={type || 'text'} autoComplete={type === 'password' ? 'new-password' : 'off'}
+            value={values[key] || ''} onChange={(e) => setValues((v) => ({ ...v, [key]: e.target.value }))} />
+        )}</Field>
+      ))}
+      <div role="status" className="error-text">{error}</div>
+    </Dialog>
+  )
 }

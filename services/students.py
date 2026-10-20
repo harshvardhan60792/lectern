@@ -5,7 +5,7 @@ from db import transaction
 from services.common import ValidationError
 
 EMAIL = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
-SOURCES = {"oulad": "Open University", "assistments": "ASSISTments", "local": "Added here"}
+SOURCES = {"oulad": "Past course", "assistments": "Maths practice", "local": "Added here"}
 
 
 def _clean(name: str, email: str | None) -> tuple[str, str | None]:

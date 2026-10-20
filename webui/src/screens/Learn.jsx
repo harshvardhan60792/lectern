@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { Float, TiltCard } from '../components/depth'
 import { CoachNotes, MasterySkyline, StudyCalendar } from '../components/learning'
-import { Button, Empty, Loading, PageHead, Pill } from '../components/ui'
+import { Button, Confirm, Empty, Loading, PageHead, Pill } from '../components/ui'
 import { api, useApi } from '../lib/api'
 import { dateText, fmt, masteryTone, plural, spring } from '../lib/format'
 
@@ -83,7 +83,6 @@ function Home({ sid, staff, openCourse, startQuiz, go }) {
         <ReviewDeck review={data.review} onStart={() => startQuiz({ review: true })} />
         <div className="card card-pad">
           <h2 className="card-title">Coach notes</h2>
-          <p className="card-sub" style={{ marginBottom: 14 }}>Written by rules from your own results.</p>
           <CoachNotes notes={data.notes} />
         </div>
       </div>
@@ -115,7 +114,7 @@ function Home({ sid, staff, openCourse, startQuiz, go }) {
       {data.active[0] && (
         <section className="card card-pad" style={{ marginBottom: 20 }}>
           <h2 className="card-title">Mastery · {data.active[0].title}</h2>
-          <p className="card-sub">Block height is how well you know each module. Recent answers count more.</p>
+          <p className="card-sub">Taller blocks mean stronger modules.</p>
           <MasterySkyline tiles={data.active[0].mastery} />
         </section>
       )}
@@ -154,11 +153,20 @@ function Home({ sid, staff, openCourse, startQuiz, go }) {
 function Course({ sid, courseId, back, openLesson, startQuiz }) {
   const { data } = useApi('learn_course', { student_id: sid, course_id: courseId }, [courseId])
   const [open, setOpen] = useState(null)
+  const [leaving, setLeaving] = useState(false)
   if (!data) return <Loading height={400} />
+  const leave = async () => {
+    try { await api('drop', { student_id: sid, course_id: courseId }); toast.success(`You left ${data.course.title}`); back() } catch (e) { toast.error(e.message) }
+  }
   return (
     <>
       <PageHead title={data.course.title} sub={`${data.progress.modules_done} of ${data.progress.modules_total} modules passed · pass mark ${data.course.pass_mark}% · ${data.pace.text}`}
-        actions={<Button kind="secondary" icon={ArrowLeft} onClick={back}>My learning</Button>} />
+        actions={<>
+          {data.status === 'active' && <Button kind="quiet" onClick={() => setLeaving(true)}>Leave course</Button>}
+          <Button kind="secondary" icon={ArrowLeft} onClick={back}>My learning</Button>
+        </>} />
+      <Confirm open={leaving} onClose={() => setLeaving(false)} title="Leave this course?" action="Leave"
+        text="Your results so far are kept. You can enroll again later from the catalog." onConfirm={leave} />
       <div style={{ marginBottom: 20 }}><Progress value={data.progress.percent} height={8} /></div>
       <div className="stack" style={{ gap: 12 }}>
         {data.modules.map((m, i) => {
@@ -231,7 +239,6 @@ function Lesson({ sid, lessonId, back, openLesson }) {
         <div className="reader-text">
           {data.blocks.map((b, i) => (b.type === 'code' ? <pre key={i} className="code">{b.text}</pre> : b.type === 'heading' ? <h3 key={i}>{b.text}</h3> : <p key={i}>{b.text}</p>))}
         </div>
-        {data.attribution && <p className="xsmall faint" style={{ marginTop: 24 }}>{data.attribution}</p>}
       </motion.article>
       <div className="row" style={{ marginTop: 18 }}>
         {prev && <Button kind="secondary" icon={ArrowLeft} onClick={() => openLesson(prev.id)}>Previous lesson</Button>}

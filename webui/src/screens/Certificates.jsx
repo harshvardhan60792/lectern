@@ -64,7 +64,7 @@ function Verify() {
     <form className="card card-pad stack" onSubmit={run}>
       <div>
         <h2 className="card-title">Verify a certificate</h2>
-        <p className="card-sub">Enter the code. To check a PDF someone sent you, also type the details printed on it.</p>
+        <p className="card-sub">Enter the code, and any details printed on the PDF.</p>
       </div>
       <Field label="Code">{(id) => <input id={id} className="input" placeholder="LEC-3E77-4731" value={f.code} onChange={set('code')} />}</Field>
       <div className="split" style={{ gap: 12 }}>
@@ -107,7 +107,7 @@ export default function Certificates({ session }) {
   const student = session.role === 'student'
   return (
     <>
-      <PageHead title="Certificates" sub="Each certificate carries a SHA-256 fingerprint of its details. Change the name, course, date or score and verification fails." />
+      <PageHead title="Certificates" />
       <div className="split" style={{ alignItems: 'start' }}>
         <div className="stack">
           {!student && <SearchInput value={text} onChange={setText} placeholder="Search code, student or course" width={340} />}

@@ -12,7 +12,8 @@ A Python desktop app: the window is pywebview, the interface is React with Motio
 - Track progress: lessons read, module scores, quiz attempts, daily study activity
 - Certificates issued automatically when a course is complete, as PDFs with a QR code
 - Reports on performance, completion and drop-out, exportable as CSV
-- Three roles: admin, instructor, student
+- Three roles: admin, instructor, student. Everyone can change their password; the admin can reset a forgotten one or remove an account
+- Students can enroll themselves from the catalog and leave a course
 
 **What it looks like**
 - A classroom-and-reading-room look: chalkboard slate, brass, index cards. Light and dark appearance.
@@ -54,9 +55,9 @@ More in [docs/screenshots](docs/screenshots).
 | Open University Learning Analytics Dataset (32,593 enrollments, 10.6M activity rows) | Students, enrollments, scores, activity, outcomes, the at-risk model |
 | ASSISTments 2009–10 (275,458 answers) | Question health check, mastery |
 | OpenStax *Introduction to Python Programming* | Two Python courses: lessons, videos, 390 questions with the official answer key |
-| SciQ (13,679 questions) | A science course, grouped into topics by k-means clustering |
+| SciQ (13,679 questions) | Six short science courses, built from topics found by k-means clustering |
 
-Dataset students are anonymised, so they appear as IDs (`OU-11391`, `AS-64525`). Their courses ran in 2009–2014 and are closed to new enrollments; new students and courses are added in the app.
+Dataset students are anonymised, so they appear as IDs (`Student 11391`). Their courses ran in 2009–2014 and are closed to new enrollments; new students and courses are added in the app.
 
 ## Run it
 
@@ -113,14 +114,13 @@ SQLite (data/lectern.db)
 The interface never writes SQL and the database never knows about buttons. The schema (`db/schema.sql`) has 23 tables in third normal form, foreign keys with cascade rules, CHECK and UNIQUE constraints, 13 indexes, three views and three triggers. See [the database](docs/database.md) and [how it works](docs/how-it-works.md).
 
 ```
-app/        entry point, settings, the bridge (api.py) and a test web server (server.py)
+app/        start-up and a test web server (__main__.py), settings, the bridge (api.py)
 db/         schema, connection, importers for each dataset
 services/   students, courses, enrollments, quizzes, review queue, progress, certificates, reports, auth
 smart/      ask the data, at-risk model, drafter, coach, recommender, text tools
 webui/      the interface: React screens, design tokens (src/styles/tokens.css), charts, 3D pieces
-tests/      107 tests: 101 on a small hand-built database, 6 on the real one
+tests/      109 tests: 103 on a small hand-built database, 6 on the real one
 docs/       how it works, the database and its data, review questions, learning tasks, PPT brief
-DESIGN.md   the look: palette, type, motion, signature pieces
 ```
 
 ## Limitations

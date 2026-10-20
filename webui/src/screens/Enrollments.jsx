@@ -55,12 +55,12 @@ export default function Enrollments() {
 
   return (
     <>
-      <PageHead title="Enrollments" sub="Put students into courses, take them out, and see who is in each course." />
+      <PageHead title="Enrollments" />
       <div className="split" style={{ gridTemplateColumns: 'minmax(320px, .8fr) minmax(0, 1.4fr)', alignItems: 'start' }}>
         <div className="card card-pad stack" style={{ gap: 16, position: 'sticky', top: 0 }}>
           <div>
             <h2 className="card-title">Enroll a student</h2>
-            <p className="card-sub">Find the student, pick a course, then enroll or drop.</p>
+            <p className="card-sub">Find a student, pick a course.</p>
           </div>
           <SearchInput value={who} onChange={setWho} placeholder="Type a student's name" width="100%" />
           <div className="stack" style={{ gap: 4, minHeight: 60 }}>
@@ -83,7 +83,6 @@ export default function Enrollments() {
           <div className="field">
             <span className="field-label">Course</span>
             <Select label="Course to enroll in" value={target} onChange={setTarget} options={open.map((c) => ({ value: c.id, label: `${c.code}  ${c.title}` }))} />
-            <span className="xsmall faint">Open University and ASSISTments courses are historical records and closed.</span>
           </div>
           <div className="row">
             <Button icon={UserPlus} disabled={!student || !target} onClick={onEnrollClicked}>Enroll</Button>

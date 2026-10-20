@@ -56,8 +56,8 @@ def run(conn: sqlite3.Connection, raw_dir: Path, stage_dir: Path, log=print) -> 
             mod, pres = r["code_module"], r["code_presentation"]
             start = term_start(pres)
             code = f"{mod}-{pres}"
-            title = f"OU {DOMAINS[mod]} module {mod} · {term_label(pres)}"
-            desc = (f"Open University module {mod} ({DOMAINS[mod]}), {term_label(pres)} presentation, "
+            title = f"{DOMAINS[mod]} module {mod} · {term_label(pres)}"
+            desc = (f"{DOMAINS[mod]} module {mod}, {term_label(pres)} run, "
                     f"{r['module_presentation_length']} days long.")
             cur = conn.execute(
                 """INSERT INTO courses (code, title, subject, description, source, starts_on, length_days, attribution)
@@ -111,7 +111,7 @@ def run(conn: sqlite3.Connection, raw_dir: Path, stage_dir: Path, log=print) -> 
                 """INSERT INTO students (source, external_id, display_name, gender, region,
                                          highest_education, age_band, imd_band, disability)
                    VALUES ('oulad', ?, ?, ?, ?, ?, ?, ?, ?)""",
-                (ext, f"OU-{ext}", r["gender"], r["region"], r["highest_education"], r["age_band"],
+                (ext, f"Student {ext}", r["gender"], r["region"], r["highest_education"], r["age_band"],
                  None if r["imd_band"] in ("", "?") else r["imd_band"], r["disability"]),
             )
             student_ids[ext] = cur.lastrowid

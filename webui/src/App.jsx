@@ -1,7 +1,11 @@
 import { Moon, Plus, Sun } from 'lucide-react'
 import { AnimatePresence, MotionConfig, motion } from 'motion/react'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { StrictMode, useCallback, useEffect, useMemo, useState } from 'react'
+import { createRoot } from 'react-dom/client'
 import { Toaster } from 'sonner'
+import './styles/tokens.css'
+import './styles/components.css'
+import './styles/depth.css'
 import { CommandPalette, Sidebar, navFor } from './components/Shell'
 import { Loading } from './components/ui'
 import { api } from './lib/api'
@@ -33,7 +37,7 @@ function initialTheme() {
   }
 }
 
-export default function App() {
+function App() {
   const [state, setState] = useState(null)
   const [route, setRoute] = useState({ name: null, params: {}, dir: 1 })
   const [palette, setPalette] = useState(false)
@@ -121,3 +125,5 @@ export default function App() {
     </MotionConfig>
   )
 }
+
+createRoot(document.getElementById('root')).render(<StrictMode><App /></StrictMode>)

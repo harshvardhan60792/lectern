@@ -26,7 +26,7 @@ export default function Ask() {
 
   return (
     <>
-      <PageHead title="Ask the data" sub="Type a question in plain English. Lectern turns it into SQL with fixed rules, shows you the SQL, and runs it read-only. Nothing you type can change the data." />
+      <PageHead title="Ask the data" sub="Ask a question in plain English. Answers are read-only." />
       <form className="card" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: 10, marginBottom: 14 }} onSubmit={(e) => { e.preventDefault(); ask() }}>
         <input className="input" style={{ border: 0, boxShadow: 'none', fontSize: 'var(--fs-lg)', height: 48, background: 'transparent' }}
           placeholder="e.g. Withdrawal rate by region" value={question} onChange={(e) => setQuestion(e.target.value)} aria-label="Your question" autoFocus />

@@ -10,8 +10,8 @@ import { api, useApi, useDebounced } from '../lib/api'
 import { fmt, sourceText } from '../lib/format'
 
 const FILTERS = [
-  { value: '', label: 'All courses' }, { value: 'local', label: 'Created here' }, { value: 'openstax', label: 'OpenStax textbook' },
-  { value: 'sciq', label: 'SciQ' }, { value: 'assistments', label: 'ASSISTments' }, { value: 'oulad', label: 'Open University' },
+  { value: '', label: 'All courses' }, { value: 'local', label: 'Created here' }, { value: 'openstax', label: 'Programming' },
+  { value: 'sciq', label: 'Science' }, { value: 'assistments', label: 'Maths practice' }, { value: 'oulad', label: 'Past courses' },
 ]
 
 /** A small ring showing completion; the number is written inside, so colour isn't needed to read it. */
@@ -108,7 +108,6 @@ function LessonPreview({ lessonId, onClose }) {
       {!data ? <Loading /> : (
         <div className="reader-text" style={{ fontSize: 16, maxHeight: '55vh', overflowY: 'auto', paddingRight: 8 }}>
           {data.blocks.map((b, i) => (b.type === 'code' ? <pre key={i} className="code">{b.text}</pre> : b.type === 'heading' ? <h3 key={i}>{b.text}</h3> : <p key={i}>{b.text}</p>))}
-          {data.attribution && <p className="xsmall faint">{data.attribution}</p>}
         </div>
       )}
     </Dialog>
@@ -218,7 +217,7 @@ function PrereqTab({ detail, reload, courses }) {
   const options = courses.filter((x) => x.id !== c.id && !x.historical && !detail.prerequisites.some((p) => p.id === x.id))
   return (
     <div className="stack" style={{ gap: 16 }}>
-      <p className="small muted">Students must complete these first. The database enforces this too, with a trigger.</p>
+      <p className="small muted">Students must complete these first.</p>
       {detail.prerequisites.length ? detail.prerequisites.map((p) => (
         <div key={p.id} className="row card" style={{ padding: '10px 14px', boxShadow: 'none' }}>
           <span className="xsmall" style={{ fontWeight: 700, color: 'var(--brass-ink)' }}>{p.code}</span><span>{p.title}</span>
@@ -254,7 +253,7 @@ function InsightsTab({ id }) {
     <div className="stack" style={{ gap: 24 }}>
       <div>
         <h3 className="card-title">Weekly activity by final result</h3>
-        <p className="card-sub" style={{ marginBottom: 10 }}>Clicks per student each week. Students who withdrew go quiet early, which is what the at-risk model picks up.</p>
+        <p className="card-sub" style={{ marginBottom: 10 }}>Clicks per student each week, by final result.</p>
         <Lines x={weeks} series={series} xLabel="week of course" yLabel="clicks per student" height={240} />
       </div>
       <div>
@@ -303,7 +302,6 @@ function CourseSheet({ id, onClose, courses, onChanged }) {
                   <div key={k}><div className="stat-label">{k}</div><div className="stat-value" style={{ fontSize: 30 }}>{v}</div></div>
                 ))}
               </div>
-              {c.attribution && <p className="xsmall faint">{c.attribution}</p>}
               {!c.historical && (
                 <div className="row">
                   <Button kind="secondary" icon={Pencil} onClick={() => setEditing(true)}>Edit details</Button>
@@ -337,7 +335,7 @@ export default function Courses({ params }) {
 
   return (
     <>
-      <PageHead title="Courses" sub="Courses, their modules and lessons, and what each one requires first."
+      <PageHead title="Courses"
         actions={<Button icon={Plus} onClick={() => setAdding(true)}>New course</Button>} />
       <div className="row" style={{ marginBottom: 18 }}>
         <SearchInput value={text} onChange={setText} placeholder="Search courses" />

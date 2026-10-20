@@ -1,11 +1,14 @@
 import { Command } from 'cmdk'
 import {
-  Award, BookOpen, ChartColumn, ClipboardList, Gauge, GraduationCap, Library, LogOut, MessageSquareText,
+  Award, BookOpen, ChartColumn, ClipboardList, Gauge, GraduationCap, KeyRound, Library, LogOut, MessageSquareText,
   Moon, Search, ShieldAlert, Sun, UserCog, Users,
 } from 'lucide-react'
 import { motion } from 'motion/react'
 import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
+import { api } from '../lib/api'
 import { initials, spring } from '../lib/format'
+import { FormDialog } from './ui'
 
 export const STAFF_NAV = [
   { key: 'overview', label: 'Overview', icon: Gauge },
@@ -34,6 +37,7 @@ const ROLE = { admin: 'Administrator', instructor: 'Instructor', student: 'Stude
 
 export function Sidebar({ session, current, onGo, onSignOut, theme, onTheme, onPalette }) {
   const items = navFor(session)
+  const [password, setPassword] = useState(false)
   return (
     <aside className="side">
       <div className="brand">
@@ -67,6 +71,8 @@ export function Sidebar({ session, current, onGo, onSignOut, theme, onTheme, onP
             <div style={{ fontWeight: 700, fontSize: 'var(--fs-sm)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{session.display_name}</div>
             <div className="xsmall" style={{ color: 'var(--on-slate-2)' }}>@{session.username}</div>
           </div>
+          <button className="side-btn" style={{ marginLeft: 'auto', width: 'auto', padding: '6px 8px' }} onClick={() => setPassword(true)}
+            aria-label="Change password" title="Change password"><KeyRound size={14} aria-hidden /></button>
         </div>
         <div className="side-actions">
           <button className="side-btn" onClick={onTheme} aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} appearance`}>
@@ -75,6 +81,10 @@ export function Sidebar({ session, current, onGo, onSignOut, theme, onTheme, onP
           <button className="side-btn" onClick={onSignOut}><LogOut size={14} aria-hidden />Sign out</button>
         </div>
       </div>
+      <FormDialog open={password} onClose={() => setPassword(false)} title="Change password"
+        fields={[['old', 'Current password', 'password'], ['new', 'New password', 'password', '8 or more characters'], ['repeat', 'Repeat new password', 'password']]}
+        submit={(v) => api('password_change', { old: v.old || '', new: v.new || '', repeat: v.repeat || '' })}
+        onDone={() => toast.success('Password changed')} />
     </aside>
   )
 }

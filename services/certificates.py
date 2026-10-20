@@ -6,6 +6,7 @@ edited facts no longer matches the one stored when it was issued.
 """
 import hashlib
 import io
+from datetime import date
 from pathlib import Path
 
 from db import transaction
@@ -69,8 +70,7 @@ def issue(conn, student_id: int, course_id: int, issued_on: str | None = None, g
 
 def details(conn, code: str) -> dict | None:
     row = conn.execute(
-        """SELECT ct.*, s.display_name AS student_name, c.title AS course_title, c.code AS course_code,
-                  c.attribution
+        """SELECT ct.*, s.display_name AS student_name, c.title AS course_title, c.code AS course_code
            FROM certificates ct
            JOIN students s ON s.id = ct.student_id
            JOIN courses c  ON c.id = ct.course_id
@@ -197,7 +197,8 @@ def render_pdf(conn, code: str, out_path: Path) -> Path:
     pdf.drawString(70, height - 310, cert["course_title"])
 
     pdf.setFont("Helvetica", 11)
-    lines = [f"Issued {cert['issued_on']}"]
+    issued = date.fromisoformat(cert['issued_on'])
+    lines = [f"Issued {issued.day} {issued:%B %Y}"]
     if cert["score"] is not None:
         lines.append(f"Final score {cert['score']:.1f}%")
     if cert["grade"]:
@@ -219,8 +220,6 @@ def render_pdf(conn, code: str, out_path: Path) -> Path:
     pdf.drawString(70, 80, f"Fingerprint  {cert['fingerprint'][:32]}")
     pdf.drawString(70, 68, f"             {cert['fingerprint'][32:]}")
     pdf.drawString(width - 200, 58, "Scan or enter the code in Lectern to verify")
-    if cert.get("attribution"):
-        pdf.drawString(70, 50, cert["attribution"][:140])
 
     pdf.showPage()
     pdf.save()

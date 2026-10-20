@@ -23,11 +23,10 @@ ATTRIBUTION = ("Content: Introduction to Python Programming, OpenStax (Rice Univ
 
 COURSES = [
     ("PY-101", "Python programming I: foundations", range(1, 8),
-     "Statements, expressions, objects, decisions, loops, functions and modules. "
-     "Built from chapters 1–7 of the OpenStax textbook."),
+     "Statements, expressions, objects, decisions, loops, functions and modules."),
     ("PY-102", "Python programming II: data and objects", range(8, 16),
      "Strings, lists, dictionaries, classes, recursion, inheritance, files and an introduction to data science. "
-     "Built from chapters 8–15 of the OpenStax textbook. Requires Python I."),
+     "Requires Python I."),
 ]
 
 FOOTER_PATTERNS = [

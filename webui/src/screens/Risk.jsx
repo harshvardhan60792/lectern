@@ -47,7 +47,7 @@ export default function Risk({ session }) {
 
   return (
     <>
-      <PageHead title="At-risk students" sub="Who is unlikely to finish, judged on a chosen day of the course. For Open University courses each prediction sits next to what really happened."
+      <PageHead title="At-risk students" sub="Who is unlikely to finish, judged on a chosen day of the course."
         actions={session.role === 'admin' && <Button kind="secondary" icon={RefreshCw} onClick={async () => { const r = await api('model_retrain'); toast.success(`Retrained. ROC AUC ${fmt(r.roc_auc, 3)}`); model.reload() }}>Retrain model</Button>} />
       <div className="row wrap" style={{ marginBottom: 18 }}>
         <Select label="Course" value={course} onChange={setCourse} width={380} options={options.map((c) => ({ value: c.id, label: `${c.code}  ${c.title}` }))} />

@@ -13,7 +13,7 @@ export const initials = (name = '') =>
 export const statusTone = { completed: 'good', active: 'brass', failed: 'warn', withdrawn: 'bad' }
 export const statusText = { completed: 'Completed', active: 'Active', failed: 'Failed', withdrawn: 'Withdrawn' }
 
-export const sourceText = { oulad: 'Open University', assistments: 'ASSISTments', local: 'Added here', openstax: 'OpenStax', sciq: 'SciQ' }
+export const sourceText = { oulad: 'Past course', assistments: 'Maths practice', local: 'Added here', openstax: 'Programming', sciq: 'Science' }
 
 export const masteryTone = (v) => (v === null || v === undefined ? 'none' : v >= 75 ? 'good' : v >= 50 ? 'warn' : 'bad')
 
@@ -27,7 +27,6 @@ export const dateText = (iso) => {
 export const spring = { type: 'spring', stiffness: 380, damping: 32, mass: 0.9 }
 export const springSoft = { type: 'spring', stiffness: 220, damping: 26 }
 export const ease = [0.2, 0.8, 0.2, 1]
-export const appear = { duration: 0.26, ease }
 
 // Screens slide in from the side they were picked from; never fade-up on load.
 export const pageVariants = {

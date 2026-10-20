@@ -37,7 +37,7 @@ function Outcomes() {
   const worst = [...data.rows].sort((a, b) => a.passed - b.passed)[0]
   return (
     <div className="stack" style={{ gap: 20 }}>
-      <Card title="Results by student background" sub="Open University students, 2013–14. Real outcomes."
+      <Card title="Results by student background" sub="Past courses, 2013–14."
         actions={<div className="row"><Select label="Group by" value={field} onChange={setField} options={Object.entries(data.groups).map(([v, l]) => ({ value: v, label: l }))} width={300} /><ExportButton name="outcomes_by_background" rows={data.rows} /></div>}>
         <StackedBars labelWidth={230} rows={data.rows.map((r) => ({ label: String(r.grp), parts: { Pass: r.passed, Fail: r.failed, Withdrawn: r.withdrawn } }))} />
         <p className="small muted" style={{ marginTop: 14 }}>Highest pass rate: {best.grp} ({best.passed}%, {fmt(best.n)} enrollments). Lowest: {worst.grp} ({worst.passed}%, {fmt(worst.n)}).</p>
@@ -74,12 +74,12 @@ function Engagement() {
   })
   return (
     <div className="stack" style={{ gap: 20 }}>
-      <Card title="Weekly activity by final result" sub="Average clicks per student each week. Students who withdraw fade within weeks."
+      <Card title="Weekly activity by final result" sub="Average clicks per student each week."
         actions={<div className="row"><CoursePicker value={course} onChange={setCourse} filter={(c) => c.source === 'oulad'} /><ExportButton name="weekly_activity" rows={data?.weekly} /></div>}>
         {data ? <Lines x={weeks} series={series} xLabel="week of course" yLabel="clicks per student" height={300} /> : <Loading height={300} />}
       </Card>
       {data && (
-        <Card title="Active days by result" sub="All Open University courses.">
+        <Card title="Active days by result" sub="All past courses.">
           <Bars data={data.by_result.map((a) => ({ label: a.result, value: a.avg_active_days, digits: 1 }))} unit=" days" />
         </Card>
       )}
@@ -108,7 +108,7 @@ function Scores() {
 function Trend() {
   const { data } = useApi('report', { kind: 'trend' }, [])
   return (
-    <Card title="New enrollments per month" sub="Open University registrations cluster before each February and October start." actions={<ExportButton name="monthly_enrollments" rows={data} />}>
+    <Card title="New enrollments per month" sub="Registrations peak before each February and October start." actions={<ExportButton name="monthly_enrollments" rows={data} />}>
       {data ? <Columns data={data.slice(-40).map((d) => ({ label: d.month, value: d.enrollments }))} height={300} /> : <Loading height={300} />}
     </Card>
   )
@@ -117,7 +117,7 @@ function Trend() {
 function Audit() {
   const { data } = useApi('report', { kind: 'audit' }, [])
   return (
-    <Card title="Grade changes" sub="Written by a database trigger whenever a score changes, with who was signed in. The app can't skip it."
+    <Card title="Grade changes" sub="Every score change and who made it."
       actions={<ExportButton name="grade_changes" rows={data} />}>
       {data ? (
         <Table rowKey="changed_at" rows={data} maxHeight={520}
@@ -136,7 +136,7 @@ export default function Reports() {
   const [tab, setTab] = useState(TABS[0])
   return (
     <>
-      <PageHead title="Reports" sub="Who passes, who drops out, and what changed. Every table can be saved as CSV." />
+      <PageHead title="Reports" />
       <div style={{ marginBottom: 18 }}><Tabs id="reports" value={tab} onChange={setTab} items={TABS} /></div>
       {tab === 'Outcomes' && <Outcomes />}
       {tab === 'Engagement' && <Engagement />}

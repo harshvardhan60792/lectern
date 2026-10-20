@@ -8,7 +8,7 @@ import { dateText, fmt, initials, plural, sourceText, statusText, statusTone } f
 
 const SOURCES = [
   { value: '', label: 'All students' }, { value: 'local', label: 'Added here' },
-  { value: 'oulad', label: 'Open University' }, { value: 'assistments', label: 'ASSISTments' },
+  { value: 'oulad', label: 'Past courses' }, { value: 'assistments', label: 'Maths practice' },
 ]
 const PAGE = 60
 
@@ -143,7 +143,7 @@ function Profile({ id, go, onChanged, onRemoved }) {
             <Select label="Course" value={mastery?.course ?? data.mastery_course}
               options={data.enrollments.map((e) => ({ value: e.course_id, label: e.title }))}
               onChange={async (v) => setMastery({ course: Number(v), tiles: await api('student_mastery', { student_id: id, course_id: Number(v) }) })} />
-            <p className="xsmall faint">Block height is mastery. Recent answers count more than old ones.</p>
+            <p className="xsmall faint">Taller blocks mean stronger modules.</p>
             <MasterySkyline tiles={tiles} />
           </div>
         ) : <Empty title="Nothing to measure yet" />
@@ -186,10 +186,10 @@ export default function Students({ go, params }) {
 
   return (
     <>
-      <PageHead title="Students" sub="Search, add and update students. Pick one to see their record."
+      <PageHead title="Students"
         actions={<Button icon={Plus} onClick={() => setAdding(true)}>Add student</Button>} />
       <div className="row" style={{ marginBottom: 14 }}>
-        <SearchInput value={text} onChange={setText} placeholder="Search by name, email or dataset ID" width={340} />
+        <SearchInput value={text} onChange={setText} placeholder="Search by name, email or ID" width={340} />
         <Select label="Source" value={source} onChange={setSource} options={SOURCES} width={190} />
         <span className="spacer" />
         {data && <span className="small muted num">{fmt(data.total)} students</span>}

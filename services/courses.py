@@ -5,8 +5,8 @@ from db import transaction
 from services.common import ValidationError
 
 SOURCES = {
-    "openstax": "OpenStax textbook", "sciq": "SciQ questions", "assistments": "ASSISTments",
-    "oulad": "Open University", "local": "Created here",
+    "openstax": "Programming", "sciq": "Science", "assistments": "Maths practice",
+    "oulad": "Past course", "local": "Created here",
 }
 CODE = re.compile(r"^[A-Z0-9][A-Z0-9-]{1,19}$")
 
@@ -176,7 +176,7 @@ def lessons(conn, module_id: int) -> list[dict]:
 
 def lesson(conn, lesson_id: int) -> dict | None:
     row = conn.execute(
-        """SELECT l.*, m.title AS module_title, m.course_id, c.title AS course_title, c.attribution
+        """SELECT l.*, m.title AS module_title, m.course_id, c.title AS course_title
            FROM lessons l JOIN modules m ON m.id = l.module_id JOIN courses c ON c.id = m.course_id
            WHERE l.id = ?""",
         (lesson_id,),

@@ -44,8 +44,7 @@ def run(conn: sqlite3.Connection, raw_dir: Path, log=print) -> None:
         cur = conn.execute(
             """INSERT INTO courses (code, title, subject, description, source, attribution)
                VALUES ('ASSIST-0910', 'Maths skill builder 2009–10', 'Mathematics', ?, 'assistments', ?)""",
-            ("Middle-school maths practice from the ASSISTments online tutor, 2009–10 school year. "
-             "Each module is one skill; each question is one real problem students answered.",
+            ("Middle-school maths practice, 2009–10 school year. Each module is one skill.",
              ATTRIBUTION),
         )
         course_id = cur.lastrowid
@@ -74,7 +73,7 @@ def run(conn: sqlite3.Connection, raw_dir: Path, log=print) -> None:
         for user in sorted({a[0] for a in answers.values()}, key=int):
             cur = conn.execute(
                 "INSERT INTO students (source, external_id, display_name) VALUES ('assistments', ?, ?)",
-                (user, f"AS-{user}"),
+                (user, f"Student {user}"),
             )
             student_ids[user] = cur.lastrowid
         conn.executemany(
