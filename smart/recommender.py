@@ -143,13 +143,3 @@ def material_insights(conn, course_id: int, min_users: int = 30, top: int = 15) 
     } for r in rows]
     materials.sort(key=lambda m: -(m["lift"] or 0))
     return {"base_rate": round(base_rate, 3), "materials": materials[:top], "students": base["n"]}
-
-
-def missed_materials(conn, student_id: int, course_id: int, n: int = 5) -> list[dict]:
-    used = {r[0] for r in conn.execute(
-        """SELECT mu.material_id FROM material_use mu JOIN materials m ON m.id = mu.material_id
-           WHERE mu.student_id = ? AND m.course_id = ?""",
-        (student_id, course_id),
-    )}
-    insights = material_insights(conn, course_id, top=60)["materials"]
-    return [m for m in insights if m["material_id"] not in used and (m["lift"] or 0) > 1.1][:n]

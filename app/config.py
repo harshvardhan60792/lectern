@@ -20,7 +20,6 @@ class Config:
     raw_dir: Path
     models_dir: Path
     exports_dir: Path
-    theme: str
 
 
 def load() -> Config:
@@ -29,7 +28,6 @@ def load() -> Config:
         raw_dir=_path("LECTERN_RAW", "data/raw"),
         models_dir=ROOT / "data" / "models",
         exports_dir=ROOT / "exports",
-        theme=os.getenv("LECTERN_THEME", "light"),
     )
 
 
