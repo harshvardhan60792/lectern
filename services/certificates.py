@@ -10,6 +10,7 @@ from datetime import date
 from pathlib import Path
 
 from db import transaction
+from services.errors import ValidationError
 
 # Mixed into every fingerprint so a hash can't be recomputed without the app.
 _PEPPER = "lectern-certificate-v1"
@@ -119,7 +120,9 @@ def verify(conn, code: str, student_name: str | None = None, course_title: str |
 
 def revoke(conn, code: str) -> None:
     with transaction(conn):
-        conn.execute("UPDATE certificates SET revoked = 1 WHERE code = ?", (code,))
+        cur = conn.execute("UPDATE certificates SET revoked = 1 WHERE code = ?", (code.strip().upper(),))
+    if cur.rowcount == 0:
+        raise ValidationError("No certificate has this code.")
 
 
 def search(conn, text: str = "", limit: int = 100, offset: int = 0) -> tuple[list[dict], int]:

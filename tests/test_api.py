@@ -84,3 +84,27 @@ def test_ask_the_data_through_the_bridge(api):
     ok(api.call("login", {"username": "admin", "password": "long-enough-1"}))
     assert ok(api.call("ask", {"question": "How many students are there?"}))["rows"] == [[2]]
     assert not api.call("ask", {"question": "delete all students"})["ok"]
+
+
+def test_lessons_and_pdfs_need_sign_in(api, conn):
+    lesson = conn.execute("SELECT id FROM lessons LIMIT 1").fetchone()[0]
+    assert api.call("lesson", {"lesson_id": lesson}) == {"ok": False, "error": "Sign in first."}
+    assert api.call("certificate_pdf", {"code": "LEC-0000-0000"}) == {"ok": False, "error": "Sign in first."}
+    assert api.call("courses_search")["error"] == "Only staff can do that."
+
+
+def test_missing_items_and_bad_input_get_clear_messages(api):
+    ok(api.call("login", {"username": "admin", "password": "long-enough-1"}))
+    assert api.call("module_rename", {"module_id": 999, "title": "x"})["error"] == "That module no longer exists."
+    assert api.call("course_remove", {"course_id": 999})["error"] == "That course no longer exists."
+    assert api.call("learn_home", {"student_id": 999})["error"] == "That student no longer exists."
+    assert api.call("certificate_revoke", {"code": "LEC-NOPE"})["error"] == "No certificate has this code."
+    assert api.call("risk_predict", {"course_id": 1, "day": 45})["error"] == "Choose day 30, 60, 90 or 120."
+    assert "wrong format" in api.call("student_calendar", {"student_id": 1, "year": "soon"})["error"]
+
+
+def test_csv_export_stays_in_its_folder(tmp_path, monkeypatch):
+    from services import reports
+    monkeypatch.setattr(reports, "config", type("C", (), {"exports_dir": tmp_path / "exports"}))
+    path = reports.export_csv([{"a": 1}], "../../outside")
+    assert path.parent == tmp_path / "exports" and path.name == "outside.csv"

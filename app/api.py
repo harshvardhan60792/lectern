@@ -9,6 +9,7 @@ calls the right service, and shapes the answer for the screen.
 """
 import inspect
 import os
+import sqlite3
 import threading
 import webbrowser
 from dataclasses import asdict
@@ -25,6 +26,11 @@ from smart import text as tt
 
 class Forbidden(ValidationError):
     pass
+
+
+def signed_in(fn):
+    fn.signed_in = True
+    return fn
 
 
 def staff_only(fn):
@@ -65,6 +71,8 @@ class Api:
         if method.startswith("_") or method == "call" or not callable(fn):
             return {"ok": False, "error": f"Unknown action: {method}"}
         try:
+            if getattr(fn, "signed_in", False) and self.session is None:
+                raise Forbidden("Sign in first.")
             if getattr(fn, "staff_only", False) or getattr(fn, "admin_only", False):
                 if self.session is None or not self.session.is_staff:
                     raise Forbidden("Only staff can do that.")
@@ -74,8 +82,19 @@ class Api:
             return {"ok": True, "data": fn(**{k: v for k, v in payload.items() if k in allowed})}
         except (ValidationError, ask_data.NotUnderstood) as exc:
             return {"ok": False, "error": str(exc)}
+        except (TypeError, ValueError):
+            return {"ok": False, "error": "Some of the details are missing or in the wrong format."}
+        except sqlite3.IntegrityError as exc:
+            if "FOREIGN KEY" in str(exc):
+                return {"ok": False, "error": "Something this refers to no longer exists. Refresh and try again."}
+            return {"ok": False, "error": f"The database refused that: {exc}."}
         except Exception as exc:  # shown in the UI instead of failing silently
             return {"ok": False, "error": f"Something went wrong: {exc}"}
+
+    def _need(self, table: str, row_id, what: str) -> None:
+        """Refuse an action on something that was deleted (or never existed)."""
+        if self.conn.execute(f"SELECT 1 FROM {table} WHERE id = ?", (row_id,)).fetchone() is None:
+            raise ValidationError(f"That {what} no longer exists.")
 
     def _student_id(self, student_id: int | None) -> int:
         """Students act only as themselves; staff may act as an added (local) student."""
@@ -85,6 +104,7 @@ class Api:
             return self.session.student_id
         if student_id is None:
             raise ValidationError("Choose a student.")
+        self._need("students", int(student_id), "student")
         return int(student_id)
 
     # Session ---------------------------------------------------------------------
@@ -159,32 +179,38 @@ class Api:
 
     @staff_only
     def student_mastery(self, student_id: int, course_id: int):
+        self._need("students", student_id, "student")
+        self._need("courses", course_id, "course")
         return progress.mastery_map(self.conn, student_id, course_id)
 
     def student_calendar(self, student_id: int | None = None, year: int | None = None):
         sid = self._student_id(student_id)
-        return progress.calendar(self.conn, sid, year)
+        return progress.calendar(self.conn, sid, int(year) if year else None)
 
     @staff_only
     def student_save(self, name: str, email: str = "", region: str = "", education: str = "",
                      student_id: int | None = None):
         if student_id:
+            self._need("students", student_id, "student")
             students.update(self.conn, student_id, name, email, region, education)
             return student_id
         return students.add(self.conn, name, email, region, education)
 
     @staff_only
     def student_remove(self, student_id: int):
+        self._need("students", student_id, "student")
         students.remove(self.conn, student_id)
         return True
 
     @staff_only
     def student_create_login(self, student_id: int, username: str, password: str):
+        self._need("students", student_id, "student")
         auth.create_user(self.conn, username, password, "student", student_id=student_id)
         return True
 
     # Courses ---------------------------------------------------------------------------
 
+    @staff_only
     def courses_search(self, text: str = "", source: str | None = None, archived: bool = False):
         rows = courses.search(self.conn, text, source or None, bool(archived))
         for r in rows:
@@ -209,36 +235,43 @@ class Api:
     def course_save(self, code: str, title: str, subject: str, description: str = "", pass_mark=50,
                     instructor_id: int | None = None, course_id: int | None = None):
         if course_id:
+            self._need("courses", course_id, "course")
             courses.update(self.conn, course_id, code, title, subject, description, pass_mark, instructor_id)
             return course_id
         return courses.add(self.conn, code, title, subject, description, pass_mark, instructor_id)
 
     @staff_only
     def course_archive(self, course_id: int, archived: bool):
+        self._need("courses", course_id, "course")
         courses.set_archived(self.conn, course_id, archived)
         return True
 
     @staff_only
     def course_remove(self, course_id: int):
+        self._need("courses", course_id, "course")
         courses.remove(self.conn, course_id)
         return True
 
     @staff_only
     def module_add(self, course_id: int, title: str):
+        self._need("courses", course_id, "course")
         return courses.add_module(self.conn, course_id, title)
 
     @staff_only
     def module_rename(self, module_id: int, title: str):
+        self._need("modules", module_id, "module")
         courses.rename_module(self.conn, module_id, title)
         return True
 
     @staff_only
     def module_move(self, module_id: int, direction: int):
+        self._need("modules", module_id, "module")
         courses.move_module(self.conn, module_id, direction)
         return True
 
     @staff_only
     def module_remove(self, module_id: int):
+        self._need("modules", module_id, "module")
         courses.remove_module(self.conn, module_id)
         return True
 
@@ -246,6 +279,7 @@ class Api:
     def lessons(self, module_id: int):
         return courses.lessons(self.conn, module_id)
 
+    @signed_in
     def lesson(self, lesson_id: int):
         l = courses.lesson(self.conn, lesson_id)
         if l is None:
@@ -255,15 +289,19 @@ class Api:
 
     @staff_only
     def lesson_save(self, module_id: int, title: str, body: str, video_url: str = "", lesson_id: int | None = None):
+        self._need("modules", module_id, "module")
         return courses.save_lesson(self.conn, module_id, title, body, video_url, lesson_id)
 
     @staff_only
     def lesson_remove(self, lesson_id: int):
+        self._need("lessons", lesson_id, "lesson")
         courses.remove_lesson(self.conn, lesson_id)
         return True
 
     @staff_only
     def prerequisite_add(self, course_id: int, requires_id: int):
+        self._need("courses", course_id, "course")
+        self._need("courses", requires_id, "course")
         courses.add_prerequisite(self.conn, course_id, requires_id)
         return True
 
@@ -272,6 +310,7 @@ class Api:
         courses.remove_prerequisite(self.conn, course_id, requires_id)
         return True
 
+    @staff_only
     def prerequisite_graph(self):
         nodes, edges = courses.prerequisite_graph(self.conn)
         return {"nodes": nodes, "edges": edges}
@@ -279,6 +318,8 @@ class Api:
     @staff_only
     def course_insights(self, course_id: int):
         c = courses.get(self.conn, course_id)
+        if c is None:
+            raise ValidationError("That course no longer exists.")
         return {
             "weekly": reports.weekly_activity(self.conn, course_id),
             "scores": reports.score_distribution(self.conn, course_id),
@@ -313,6 +354,7 @@ class Api:
 
     @staff_only
     def question(self, question_id: int):
+        self._need("questions", question_id, "question")
         return quizzes.question(self.conn, question_id)
 
     @staff_only
@@ -323,19 +365,23 @@ class Api:
 
     @staff_only
     def question_status(self, question_id: int, status: str):
+        self._need("questions", question_id, "question")
         quizzes.set_status(self.conn, question_id, status)
         return True
 
     @staff_only
     def draft_questions(self, module_id: int, how_many: int = 8, text: str = ""):
+        self._need("modules", module_id, "module")
         drafts = drafter.draft_for_module(self.conn, module_id, int(how_many), source_text=text.strip() or None)
         return [asdict(d) for d in drafts]
 
     @staff_only
     def save_drafts(self, module_id: int, drafts: list, status: str = "draft"):
+        self._need("modules", module_id, "module")
         for d in drafts:
+            source = d.get("sentence")
             quizzes.save_question(self.conn, module_id, d["prompt"], d["options"], int(d["correct"]),
-                                  f"From the lesson: {d['sentence']}", source="drafted", status=status)
+                                  f"From the lesson: {source}" if source else "", source="drafted", status=status)
         return len(drafts)
 
     @staff_only
@@ -355,6 +401,7 @@ class Api:
             return {"weekly": reports.weekly_activity(self.conn, course_id),
                     "by_result": reports.activity_by_outcome(self.conn)}
         if kind == "scores":
+            self._need("courses", course_id, "course")
             return {"scores": reports.score_distribution(self.conn, course_id),
                     "pass_mark": courses.get(self.conn, course_id)["pass_mark"]}
         if kind == "trend":
@@ -379,6 +426,7 @@ class Api:
         result["rows"] = [list(r) for r in result["rows"]]
         return result
 
+    @staff_only
     def ask_examples(self):
         return ask_data.EXAMPLES
 
@@ -386,6 +434,8 @@ class Api:
 
     @staff_only
     def risk_predict(self, course_id: int, day: int = 60):
+        if int(day) not in (30, 60, 90, 120):
+            raise ValidationError("Choose day 30, 60, 90 or 120.")
         preds = risk.predict(self.conn, course_id, int(day))
         for p in preds:
             p["nudge"] = risk.nudge(p) if p["level"] != "low" else None
@@ -424,6 +474,7 @@ class Api:
         return certificates.verify(self.conn, code, student_name.strip() or None, course_title.strip() or None,
                                    issued_on.strip() or None, score_value)
 
+    @signed_in
     def certificate_pdf(self, code: str):
         cert = certificates.details(self.conn, code)
         if cert is None:
@@ -489,6 +540,8 @@ class Api:
     def learn_course(self, course_id: int, student_id: int | None = None):
         sid = self._student_id(student_id)
         c = courses.get(self.conn, course_id)
+        if c is None:
+            raise ValidationError("That course no longer exists.")
         tiles = {t["module_id"]: t for t in progress.mastery_map(self.conn, sid, course_id)}
         mods = []
         for m in courses.modules(self.conn, course_id):
@@ -499,9 +552,7 @@ class Api:
                 "pace": progress.pace(self.conn, sid, course_id), "modules": mods}
 
     def lesson_complete(self, lesson_id: int, student_id: int | None = None):
-        sid = self._student_id(student_id)
-        lesson = courses.lesson(self.conn, lesson_id)
-        progress.complete_lesson(self.conn, sid, lesson_id, 100 if lesson["video_url"] else 0)
+        progress.complete_lesson(self.conn, self._student_id(student_id), lesson_id)
         return True
 
     def quiz_start(self, module_id: int, student_id: int | None = None):

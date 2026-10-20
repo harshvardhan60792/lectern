@@ -1,5 +1,6 @@
 """Reports and the question health check."""
 import csv
+import re
 from pathlib import Path
 
 from app.config import config
@@ -121,7 +122,8 @@ def grade_audit(conn, limit: int = 200) -> list[dict]:
 
 def export_csv(rows: list[dict], name: str) -> Path:
     config.exports_dir.mkdir(parents=True, exist_ok=True)
-    path = config.exports_dir / f"{name}.csv"
+    safe = re.sub(r"[^A-Za-z0-9 _-]", "", name).strip() or "export"  # no folders, only a plain file name
+    path = config.exports_dir / f"{safe}.csv"
     with open(path, "w", newline="", encoding="utf-8") as f:
         if rows:
             writer = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
