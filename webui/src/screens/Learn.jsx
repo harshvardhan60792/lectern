@@ -6,7 +6,7 @@ import { Float, TiltCard } from '../components/depth'
 import { CoachNotes, MasterySkyline, StudyCalendar } from '../components/learning'
 import { Button, Empty, Loading, PageHead, Pill } from '../components/ui'
 import { api } from '../lib/api'
-import { dateText, fmt, masteryTone } from '../lib/format'
+import { dateText, fmt, masteryTone, plural } from '../lib/format'
 import { spring } from '../lib/motion'
 import { useApi } from '../lib/useApi'
 
@@ -130,7 +130,7 @@ function Home({ sid, staff, openCourse, startQuiz, go }) {
       <div className="split-wide">
         <section className="card card-pad">
           <h2 className="card-title">Study days</h2>
-          <p className="card-sub" style={{ marginBottom: 12 }}>{fmt(s.active_days)} days with study · longest streak {s.longest}</p>
+          <p className="card-sub" style={{ marginBottom: 12 }}>{plural(s.active_days, 'day')} with study · longest streak {plural(s.longest, 'day')}</p>
           <StudyCalendar year={data.calendar.year} days={data.calendar.days} />
         </section>
         <section className="card card-pad">
@@ -354,7 +354,7 @@ function Result({ result, done }) {
           return (
             <motion.div key={f.question_id} className="card card-pad" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 + i * 0.04 }}>
               <div className="row" style={{ alignItems: 'flex-start', gap: 14 }}>
-                <Pill tone={f.correct ? 'good' : 'bad'}>{f.correct ? <Check size={12} aria-hidden /> : <X size={12} aria-hidden />}{f.correct ? 'Right' : 'Wrong'}</Pill>
+                <Pill tone={f.correct ? 'good' : 'bad'}>{f.correct ? <Check size={12} aria-hidden /> : <X size={12} aria-hidden />}{f.correct ? 'Right' : f.chosen_option_id == null ? 'Skipped' : 'Wrong'}</Pill>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <p>{first}</p>
                   {code.length > 0 && <pre className="code" style={{ marginTop: 8 }}>{code.join('\n')}</pre>}

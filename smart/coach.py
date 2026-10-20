@@ -86,7 +86,7 @@ def _rules(f: dict, conn, student_id: int) -> list[Note]:
         for tile in e["mastery"]:
             if tile["mastery"] is not None and tile["mastery"] < 50 and tile["basis"].endswith("answers") \
                     and int(tile["basis"].split()[0]) >= 3:
-                add(Note("weak-module", 1, f"Revisit {tile['title']} in {e['title']}: your mastery there is "
+                add(Note("weak-module", 1, f"Your mastery of {tile['title']} ({e['title']}) is "
                                            f"{tile['mastery']}%. Reread it, then retake the quiz.", tile["module_id"]))
         pace = e["pace"]
         if pace["state"] == "stalled":

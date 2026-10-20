@@ -4,7 +4,7 @@ import { toast } from 'sonner'
 import { CoachNotes, MasterySkyline, StudyCalendar } from '../components/learning'
 import { Button, Confirm, Dialog, Empty, Field, Loading, PageHead, Pill, SearchInput, Select, Sheet, Table, Tabs } from '../components/ui'
 import { api } from '../lib/api'
-import { dateText, fmt, initials, sourceText, statusText, statusTone } from '../lib/format'
+import { dateText, fmt, initials, plural, sourceText, statusText, statusTone } from '../lib/format'
 import { useApi, useDebounced } from '../lib/useApi'
 
 const SOURCES = [
@@ -153,7 +153,7 @@ function Profile({ id, go, onChanged, onRemoved }) {
       {tab === 'Study days' && (
         <div className="stack">
           <div className="row" style={{ justifyContent: 'space-between' }}>
-            <p className="small muted">{fmt(data.streaks.active_days)} active days · longest streak {data.streaks.longest} · last active {dateText(data.streaks.last_active)}</p>
+            <p className="small muted">{plural(data.streaks.active_days, 'active day')} · longest streak {plural(data.streaks.longest, 'day')} · last active {dateText(data.streaks.last_active)}</p>
             {cal.years.length > 1 && (
               <Select label="Year" value={cal.year} options={cal.years.map((y) => ({ value: y, label: String(y) }))}
                 onChange={async (y) => setCalendar(await api('student_calendar', { student_id: id, year: Number(y) }))} width={110} />

@@ -1,6 +1,8 @@
 export const fmt = (n, digits = 0) =>
   n === null || n === undefined || Number.isNaN(n) ? '—' : Number(n).toLocaleString('en-GB', { maximumFractionDigits: digits, minimumFractionDigits: digits })
 
+export const plural = (n, word) => `${fmt(n)} ${word}${n === 1 ? '' : 's'}`
+
 export const pct = (n, digits = 0) => (n === null || n === undefined ? '—' : `${fmt(n, digits)}%`)
 
 export const initials = (name = '') =>
