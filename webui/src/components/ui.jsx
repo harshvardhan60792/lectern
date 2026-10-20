@@ -1,7 +1,7 @@
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { Search, X } from 'lucide-react'
 import { useEffect, useId, useRef } from 'react'
-import { ease, spring, springSoft } from '../lib/motion'
+import { ease, spring, springSoft } from '../lib/format'
 
 export function Button({ kind = 'primary', size, icon: Icon, children, className = '', ...rest }) {
   return (

@@ -5,8 +5,7 @@ import {
 } from 'lucide-react'
 import { motion } from 'motion/react'
 import { useEffect, useState } from 'react'
-import { initials } from '../lib/format'
-import { spring } from '../lib/motion'
+import { initials, spring } from '../lib/format'
 
 export const STAFF_NAV = [
   { key: 'overview', label: 'Overview', icon: Gauge },

@@ -2,8 +2,8 @@ import { motion } from 'motion/react'
 import { Bars, StackedBars } from '../components/charts'
 import { Float, TiltCard } from '../components/depth'
 import { Button, Loading, PageHead, Stat } from '../components/ui'
+import { useApi } from '../lib/api'
 import { fmt, pct } from '../lib/format'
-import { useApi } from '../lib/useApi'
 
 /** Index cards drifting on the slate: real numbers from the database, not decoration copy. */
 function HeroCards({ totals }) {

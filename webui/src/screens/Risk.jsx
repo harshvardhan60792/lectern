@@ -4,9 +4,8 @@ import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { TiltCard } from '../components/depth'
 import { Button, Empty, Loading, PageHead, Pill, Select, Stat, Table, Tabs } from '../components/ui'
-import { api } from '../lib/api'
+import { api, useApi } from '../lib/api'
 import { fmt } from '../lib/format'
-import { useApi } from '../lib/useApi'
 
 const LEVEL = { high: 'bad', medium: 'warn', low: 'good' }
 const FEATURE = {

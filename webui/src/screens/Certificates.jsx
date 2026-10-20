@@ -4,9 +4,8 @@ import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { FlipCard } from '../components/depth'
 import { Button, Confirm, Empty, Field, Loading, PageHead, Pill, SearchInput, Table } from '../components/ui'
-import { api } from '../lib/api'
+import { api, useApi, useDebounced } from '../lib/api'
 import { dateText, fmt } from '../lib/format'
-import { useApi, useDebounced } from '../lib/useApi'
 
 /** The certificate itself. Turn it over to see the fingerprint that makes it tamper-evident. */
 function Certificate({ code }) {

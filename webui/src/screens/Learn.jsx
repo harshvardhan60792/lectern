@@ -5,10 +5,8 @@ import { toast } from 'sonner'
 import { Float, TiltCard } from '../components/depth'
 import { CoachNotes, MasterySkyline, StudyCalendar } from '../components/learning'
 import { Button, Empty, Loading, PageHead, Pill } from '../components/ui'
-import { api } from '../lib/api'
-import { dateText, fmt, masteryTone, plural } from '../lib/format'
-import { spring } from '../lib/motion'
-import { useApi } from '../lib/useApi'
+import { api, useApi } from '../lib/api'
+import { dateText, fmt, masteryTone, plural, spring } from '../lib/format'
 
 const LETTERS = 'ABCDE'
 

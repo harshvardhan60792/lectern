@@ -2,7 +2,7 @@ import { motion, useReducedMotion } from 'motion/react'
 import { useState } from 'react'
 import { Button, Field } from '../components/ui'
 import { api } from '../lib/api'
-import { ease } from '../lib/motion'
+import { ease } from '../lib/format'
 
 /** The one orchestrated moment: a book on a lectern turns a page as the app opens. */
 function BookScene() {
@@ -74,7 +74,7 @@ export default function SignIn({ state, onSignedIn }) {
           {!state.db_ready ? (
             <div className="stack" style={{ marginTop: 18 }}>
               <p className="muted">The database hasn't been built yet.</p>
-              <p className="small">Download the datasets (see <b>docs/data-sources.md</b>), then run <code>python -m db setup</code> in the project folder and open Lectern again.</p>
+              <p className="small">Download the datasets (see <b>docs/database.md</b>), then run <code>python -m db setup</code> in the project folder and open Lectern again.</p>
             </div>
           ) : (
             <>

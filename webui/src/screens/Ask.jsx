@@ -3,9 +3,8 @@ import { AnimatePresence, motion } from 'motion/react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { Button, PageHead, Table } from '../components/ui'
-import { api } from '../lib/api'
+import { api, useApi } from '../lib/api'
 import { fmt } from '../lib/format'
-import { useApi } from '../lib/useApi'
 
 export default function Ask() {
   const examples = useApi('ask_examples', {}, [])

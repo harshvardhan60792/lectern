@@ -1,5 +1,23 @@
 /* Design tokens. See DESIGN.md in the project root. Change a value here and it changes everywhere. */
 
+/* Fonts, bundled so the app works offline. Only the Latin letters are included. */
+@font-face {
+  font-family: 'Literata Variable'; font-style: normal; font-display: swap; font-weight: 200 900;
+  src: url(../../node_modules/@fontsource-variable/literata/files/literata-latin-wght-normal.woff2) format('woff2-variations');
+}
+@font-face {
+  font-family: 'Atkinson Hyperlegible'; font-style: normal; font-display: swap; font-weight: 400;
+  src: url(../../node_modules/@fontsource/atkinson-hyperlegible/files/atkinson-hyperlegible-latin-400-normal.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'Atkinson Hyperlegible'; font-style: italic; font-display: swap; font-weight: 400;
+  src: url(../../node_modules/@fontsource/atkinson-hyperlegible/files/atkinson-hyperlegible-latin-400-italic.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'Atkinson Hyperlegible'; font-style: normal; font-display: swap; font-weight: 700;
+  src: url(../../node_modules/@fontsource/atkinson-hyperlegible/files/atkinson-hyperlegible-latin-700-normal.woff2) format('woff2');
+}
+
 :root {
   color-scheme: light;
   --slate: #1E2B24;
@@ -103,4 +121,67 @@
   --red-soft: #3D2622;
   --shadow-paper: 0 1px 0 rgba(0, 0, 0, .25), 0 10px 26px -14px rgba(0, 0, 0, .7);
   --shadow-lift: 0 2px 0 rgba(0, 0, 0, .25), 0 30px 60px -24px rgba(0, 0, 0, .8);
+}
+
+
+/* Base elements -------------------------------------------------------------- */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body, #root { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: var(--fs-md);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+/* A faint ruled-paper grain on the desk, so the background isn't a flat fill. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(0deg, transparent 0 31px, color-mix(in srgb, var(--line) 35%, transparent) 31px 32px);
+  opacity: .35;
+}
+
+h1, h2, h3, h4 { margin: 0; font-weight: 600; }
+p { margin: 0; }
+button, input, select, textarea { font: inherit; color: inherit; }
+a { color: var(--brass-ink); }
+
+.read { font-family: var(--font-read); }
+.num { font-variant-numeric: tabular-nums; }
+.muted { color: var(--ink-2); }
+.faint { color: var(--ink-3); }
+.small { font-size: var(--fs-sm); }
+.xsmall { font-size: var(--fs-xs); }
+
+:focus-visible {
+  outline: 2px solid var(--brass);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+::selection { background: var(--brass-soft); }
+
+/* checkboxes, radios and progress use brass, never the system blue */
+:root { accent-color: var(--brass); }
+
+/* Scrollbars that belong to the desk */
+* { scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+
+.visually-hidden {
+  position: absolute !important; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
 }

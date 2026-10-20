@@ -2,9 +2,8 @@ import { KeyRound, Plus } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { Button, Dialog, Field, Loading, PageHead, Pill, Table } from '../components/ui'
-import { api } from '../lib/api'
+import { api, useApi } from '../lib/api'
 import { dateText } from '../lib/format'
-import { useApi } from '../lib/useApi'
 
 const ROLE_TONE = { admin: 'brass', instructor: 'good', student: undefined }
 

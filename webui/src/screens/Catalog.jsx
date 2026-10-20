@@ -3,9 +3,8 @@ import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { Button, Empty, Loading, PageHead, Pill } from '../components/ui'
-import { api } from '../lib/api'
+import { api, useApi } from '../lib/api'
 import { fmt } from '../lib/format'
-import { useApi } from '../lib/useApi'
 
 /**
  * The card-catalog drawer. Each course is an index card standing in the drawer;

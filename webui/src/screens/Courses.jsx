@@ -6,9 +6,8 @@ import { Histogram, Lines } from '../components/charts'
 import { TiltCard } from '../components/depth'
 import { CourseMap } from '../components/learning'
 import { Button, Confirm, Dialog, Empty, Field, Loading, PageHead, Pill, SearchInput, Select, Sheet, Table, Tabs } from '../components/ui'
-import { api } from '../lib/api'
+import { api, useApi, useDebounced } from '../lib/api'
 import { fmt, sourceText } from '../lib/format'
-import { useApi, useDebounced } from '../lib/useApi'
 
 const FILTERS = [
   { value: '', label: 'All courses' }, { value: 'local', label: 'Created here' }, { value: 'openstax', label: 'OpenStax textbook' },

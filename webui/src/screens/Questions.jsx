@@ -4,9 +4,8 @@ import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { FlipCard } from '../components/depth'
 import { Button, Dialog, Empty, Field, Loading, PageHead, Pill, SearchInput, Select, Table, Tabs } from '../components/ui'
-import { api } from '../lib/api'
+import { api, useApi, useDebounced } from '../lib/api'
 import { fmt } from '../lib/format'
-import { useApi, useDebounced } from '../lib/useApi'
 
 const FLAG_TONE = { Healthy: 'good', 'Too easy': undefined, 'Too hard': 'warn', "Doesn't separate": 'warn', 'Check answer key': 'bad' }
 const LETTERS = 'ABCDE'

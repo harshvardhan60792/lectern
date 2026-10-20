@@ -3,9 +3,8 @@ import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { CoachNotes, MasterySkyline, StudyCalendar } from '../components/learning'
 import { Button, Confirm, Dialog, Empty, Field, Loading, PageHead, Pill, SearchInput, Select, Sheet, Table, Tabs } from '../components/ui'
-import { api } from '../lib/api'
+import { api, useApi, useDebounced } from '../lib/api'
 import { dateText, fmt, initials, plural, sourceText, statusText, statusTone } from '../lib/format'
-import { useApi, useDebounced } from '../lib/useApi'
 
 const SOURCES = [
   { value: '', label: 'All students' }, { value: 'local', label: 'Added here' },

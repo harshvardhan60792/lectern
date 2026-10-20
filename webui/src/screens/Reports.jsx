@@ -3,9 +3,8 @@ import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { Bars, Columns, Histogram, Lines, StackedBars } from '../components/charts'
 import { Button, Empty, Loading, PageHead, Select, Table, Tabs } from '../components/ui'
-import { api } from '../lib/api'
+import { api, useApi } from '../lib/api'
 import { fmt } from '../lib/format'
-import { useApi } from '../lib/useApi'
 
 const TABS = ['Outcomes', 'Engagement', 'Scores', 'Enrollments', 'Grade changes']
 
