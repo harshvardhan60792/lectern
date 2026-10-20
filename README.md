@@ -2,7 +2,7 @@
 
 A desktop e-learning platform built on a real SQL database. It manages courses, students, enrollments, progress, quizzes and certificates, and adds tools that help teachers teach and students remember.
 
-A Python desktop app: the window is pywebview, the interface is React with Motion for its 3D and sliding pieces, and everything behind it is Python, SQLite and scikit-learn. Everything runs offline: no paid API and no internet connection. All data is real and published (see [data sources](docs/data-sources.md)).
+A Python desktop app: the window is pywebview, the interface is React with Motion for its 3D and sliding pieces, and everything behind it is Python, SQLite and scikit-learn. Everything runs offline: no paid API and no internet connection. All data is real and published (see [the database and its data](docs/database.md)).
 
 ## What it does
 
@@ -70,7 +70,7 @@ python -m pip install -r requirements.txt
 Copy-Item .env.example .env
 ```
 
-Download the four datasets into `data/raw/` ([instructions](docs/data-sources.md)), then build the database (about 80 seconds) and start the app. The interface is already built in `webui/dist`, so Node isn't needed just to run it:
+Download the four datasets into `data/raw/` ([instructions](docs/database.md#part-2-data-sources)), then build the database (about 80 seconds) and start the app. The interface is already built in `webui/dist`, so Node isn't needed just to run it:
 
 ```powershell
 python -m db setup
@@ -110,7 +110,7 @@ DB layer (db/)        one place that opens connections; every value is a paramet
 SQLite (data/lectern.db)
 ```
 
-The interface never writes SQL and the database never knows about buttons. The schema (`db/schema.sql`) has 23 tables in third normal form, foreign keys with cascade rules, CHECK and UNIQUE constraints, 13 indexes, three views and three triggers. See the [ER diagram](docs/er-diagram.md) and the [project overview](docs/explain/00-project-overview.md).
+The interface never writes SQL and the database never knows about buttons. The schema (`db/schema.sql`) has 23 tables in third normal form, foreign keys with cascade rules, CHECK and UNIQUE constraints, 13 indexes, three views and three triggers. See [the database](docs/database.md) and [how it works](docs/how-it-works.md).
 
 ```
 app/        entry point, settings, the bridge (api.py) and a test web server (server.py)
@@ -118,8 +118,8 @@ db/         schema, connection, importers for each dataset
 services/   students, courses, enrollments, quizzes, review queue, progress, certificates, reports, auth
 smart/      ask the data, at-risk model, drafter, coach, recommender, text tools
 webui/      the interface: React screens, design tokens (src/styles/tokens.css), charts, 3D pieces
-tests/      100 tests: 94 on a small hand-built database, 6 on the real one
-docs/       plan, data sources, explanations, learning tasks
+tests/      106 tests: 100 on a small hand-built database, 6 on the real one
+docs/       how it works, the database and its data, review questions, learning tasks, PPT brief
 DESIGN.md   the look: palette, type, motion, signature pieces
 ```
 

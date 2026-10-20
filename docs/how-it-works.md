@@ -1,6 +1,6 @@
 # Lectern: project overview
 
-Read this first. It explains what we built, how the pieces fit, and the technical words you will hear at the review. Each later note in `docs/explain/` goes deeper into one part.
+Read this first. It explains what we built, how the pieces fit, the technical words you will hear at the review, and (in section 13) where each part lives in the code. Likely review questions are in [review-questions.md](review-questions.md).
 
 ---
 
@@ -46,7 +46,7 @@ Staff can also open any added student's **learner view** to see exactly what tha
 └──────────────────────────────┘
 ```
 
-Each layer only talks to the one below it. This is **separation of concerns**: the interface never writes SQL, the database never knows about buttons, and the rules can be tested without opening a window (that's what the 100 tests do).
+Each layer only talks to the one below it. This is **separation of concerns**: the interface never writes SQL, the database never knows about buttons, and the rules can be tested without opening a window (that's what the 106 tests do).
 
 **Example: clicking "Enroll"** (`webui/src/screens/Enrollments.jsx`)
 1. **Interface**: `onEnrollClicked()` sends `api('enroll', {student_id, course_id})` across the bridge.
@@ -70,7 +70,7 @@ Each layer only talks to the one below it. This is **separation of concerns**: t
 | Smart features | **Rule engines + scikit-learn** | Free, offline, explainable. No paid API, no language model. |
 | PDFs | **pypdf** (reading), **reportlab** + **qrcode** (certificates) | |
 | Charts | Hand-drawn SVG, animated with Motion | Stacked bars, lines, histograms, the isometric mastery skyline; every value also written as text. |
-| Tests | **pytest** | 100 automatic checks, including the bridge's permissions. |
+| Tests | **pytest** | 106 automatic checks, including the bridge's permissions. |
 
 ---
 
@@ -83,13 +83,13 @@ Each layer only talks to the one below it. This is **separation of concerns**: t
 | **OpenStax** *Introduction to Python Programming* | 2 courses, 15 chapters, 85 lessons with video links, 390 questions with the official answer key |
 | **SciQ**, Allen Institute for AI | 1 course, 15 topics, 13,679 questions |
 
-Dataset students are anonymised (`OU-11391`). Their courses are historical and closed to new students. New students and courses are added in the app. Details and licences are in [data-sources.md](../data-sources.md).
+Dataset students are anonymised (`OU-11391`). Their courses are historical and closed to new students. New students and courses are added in the app. Details and licences are in [database.md](database.md#data-sources).
 
 ---
 
 ## 7. The database
 
-23 tables, 13 indexes, 3 views, 3 triggers. Diagram: [er-diagram.md](../er-diagram.md).
+23 tables, 13 indexes, 3 views, 3 triggers. Diagram: [database.md](database.md).
 
 | Table | Holds |
 |---|---|
@@ -167,7 +167,7 @@ No paid API and no language model. Two kinds of "intelligence":
 
 ## 10. Design
 
-The full spec is in [DESIGN.md](../../DESIGN.md). In short:
+The full spec is in [DESIGN.md](../DESIGN.md). In short:
 
 - **The idea**: a classroom and a reading room. Chalkboard slate, a brass desk lamp, index cards, a book on a lectern. The colours and shapes come from those things, so the app doesn't look like a template.
 - **Colour**: sage-paper background, slate sidebar, brass for the main action, green / amber / red-pen for pass / warning / problem. No blue or purple. Dark mode is the chalkboard.
@@ -214,3 +214,95 @@ The full spec is in [DESIGN.md](../../DESIGN.md). In short:
 - Drafted questions need a human check; that's why the review step exists.
 - Ask the data understands a set of question shapes, not any English.
 - The at-risk model is right about two times in three when it flags someone. It is for deciding who to check on, never for judging a student.
+
+---
+
+## 13. Code tour: where everything lives
+
+Use this to find your way around, or to answer "show me where that happens".
+
+### Start-up
+
+| What | Where |
+|---|---|
+| `python -m app` opens the window | `app/__main__.py`: pywebview window showing `webui/dist/index.html`, with `Bridge` as its JavaScript API |
+| `python -m app --browser` | same interface in a browser, via `app/server.py` (localhost only) |
+| Settings from `.env` | `app/config.py` |
+| Everything the interface can ask Python | `app/api.py` class `Api`: one method per action, `call()` checks roles and turns errors into messages |
+| First run asks for an admin account | `webui/src/screens/SignIn.jsx` → `Api.setup_admin` |
+| Sidebar, Ctrl+K palette, screen switching | `webui/src/App.jsx`, `webui/src/components/Shell.jsx` |
+
+### Database
+
+| What | Where |
+|---|---|
+| Every table, index, view and trigger | `db/schema.sql` |
+| The only place connections are opened | `db/connection.py` `connect()`, `read_only()` |
+| All-or-nothing changes | `db/connection.py` `transaction()` |
+| Telling triggers who is signed in | `db/connection.py` `set_current_user()` + table `app_session` |
+| `python -m db setup` | `db/__main__.py` `setup()` |
+
+### Importing the datasets (`db/importers/`)
+
+| File | Notes |
+|---|---|
+| `openstax.py` | Reads the PDF outline for chapters and sections, extracts text in layout mode so code keeps its indentation, pulls out "Concepts in practice" questions and matches the answer key at the back of the book. |
+| `sciq.py` | Loads 13,679 questions; TF-IDF → LSA → k-means makes 15 topics. |
+| `assistments.py` | One row per answer (`order_id`), original problems only; skills become modules. |
+| `oulad.py` | Courses, assessments, students, enrollments, scores. `_import_clicks()` streams 10.6M rows into a staging database on disk and lets SQLite add them up, so memory stays low. Issues certificates for Pass and Distinction. |
+
+### Services (the rules)
+
+| File | Key functions |
+|---|---|
+| `services/auth.py` | `hash_password` (scrypt + salt), `login`, `create_user`, `create_instructor` |
+| `services/students.py` | `add`, `update`, `remove`, `search`; email check in `_clean` |
+| `services/courses.py` | courses, modules (`move_module` swaps positions), lessons, prerequisites; `_would_loop` uses a recursive SQL query |
+| `services/enrollments.py` | `enroll` (all the checks), `drop`, `check_completion` (completes the course and issues the certificate) |
+| `services/quizzes.py` | `start_quiz` (unseen questions first), `submit` (the big transaction), `save_question` |
+| `services/review.py` | Leitner boxes: `record`, `due`, `summary` |
+| `services/progress.py` | `mastery_map` (weighted average), `calendar`, `streaks`, `pace` |
+| `services/certificates.py` | `fingerprint` (SHA-256), `issue`, `verify`, `render_pdf` |
+| `services/reports.py` | outcomes, engagement, score distribution, CSV export, `question_health` (item analysis) |
+| `services/common.py` | `ValidationError` (a message the user can act on) and "today", fixed in tests |
+
+### Smart features (`smart/`)
+
+| File | Technique |
+|---|---|
+| `ask_data.py` | `parse()` finds intent, subject, filters, group, limit → `build()` fills SQL templates → `check_safe()` → runs on `read_only()` |
+| `risk.py` | `_features()` (one SQL query per snapshot day), `train()` (2013 vs 2014 split), `predict()`, `_reasons()`, `nudge()` |
+| `drafter.py` | `TermSpace` (LSA term vectors), `draft()` |
+| `coach.py` | `_facts()` gathers data, `_rules()` the rule table, `notes()`, `week_plan()` |
+| `recommender.py` | `recommend_courses()` (TF-IDF cosine + co-enrollment), `material_insights()` (lift) |
+| `text.py` | sentence splitting, `key_terms()` (TF-IDF), `best_match()` (typo-tolerant), `looks_like_python()` |
+
+### Interface (`webui/src/`)
+
+| File | Screen |
+|---|---|
+| `screens/SignIn.jsx` | Sign-in and first run, with the book-on-a-lectern scene |
+| `screens/Overview.jsx` | Totals, floating index cards, how OU courses ended, model card |
+| `screens/Students.jsx` | Student list; profile sheet with courses, mastery skyline, study days, coach notes |
+| `screens/Courses.jsx` | Course cards; course sheet with modules and lessons editor, prerequisites and course map, OU insights |
+| `screens/Enrollments.jsx` | Enroll / drop (`onEnrollClicked`), who is in each course |
+| `screens/Questions.jsx` | Question bank with flip-card preview, drafter, health check |
+| `screens/Reports.jsx` | Outcomes by background, weekly engagement, scores, monthly enrollments, grade changes |
+| `screens/Ask.jsx` | Ask the data, with the SQL shown |
+| `screens/Risk.jsx` | At-risk students, gauge, reasons, suggested message |
+| `screens/Certificates.jsx` | Certificate that flips to its fingerprint, PDF, verification |
+| `screens/Accounts.jsx` | Sign-in accounts (admin only) |
+| `screens/Learn.jsx` | Student home, course page, lesson reader, quiz deck and results |
+| `screens/Catalog.jsx` | The card-catalog drawer of open courses |
+
+Shared pieces:
+- `lib/api.js`: the single function `api(method, data)` that reaches Python (pywebview in the window, `/api/...` in a browser), plus `useApi` to load a screen's data and reload it.
+- `lib/format.js`: how numbers, dates and labels are written, and the shared motion settings.
+- `components/ui.jsx`: buttons, fields, tables, sliding sheets, dialogs, tabs.
+- `components/depth.jsx`: `TiltCard`, `FlipCard`, `Float`, the 3D pieces.
+- `components/charts.jsx`: SVG charts. `components/learning.jsx`: mastery skyline, study calendar, coach notes, course map.
+- `styles/tokens.css`: the fonts and every colour, size and spacing value, light and dark. `styles/components.css` and `styles/depth.css` style the pieces and the 3D parts.
+
+### Tests (`tests/`)
+
+`conftest.py` builds a small database by hand (two courses, three modules, two students) so 100 tests run in seconds without the datasets. `test_api.py` checks the bridge: roles, error messages, a full quiz flow. `test_real_data.py` adds 6 checks against the real database when it exists.
