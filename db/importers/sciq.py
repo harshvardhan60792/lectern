@@ -41,14 +41,12 @@ COURSES = [
      [("atoms", "Atoms and elements"), ("gas", "Gases and reactions")]),
     ("SCI-102", "Physics basics", "Physics", "Forces, waves, light, and the forms energy takes.",
      [("light", "Forces, waves and light"), ("energy", "Energy and heat")]),
-    ("SCI-103", "Earth and how science works", "Earth science", "Water, rocks and oceans, and how scientists test ideas.",
+    ("SCI-103", "Earth science basics", "Earth science", "Water, rocks and oceans, and how scientists test ideas.",
      [("water", "Water, rocks and oceans"), ("science", "How science works")]),
-    ("SCI-104", "Cells, genes and disease", "Biology", "The cell, how traits pass on through DNA, and what makes us ill.",
+    ("SCI-104", "Biology I: cells and genes", "Biology", "The cell, how traits pass on through DNA, and what makes us ill.",
      [("cell", "The cell"), ("genes", "Genes and DNA"), ("disease", "Germs and disease")]),
-    ("SCI-105", "The human body", "Biology", "How the body uses food, moves, thinks, and moves blood around.",
-     [("body", "Food and hormones"), ("bones", "Bones, brain and nerves"), ("blood", "Heart and blood")]),
-    ("SCI-106", "Plants and animals", "Biology", "Animal groups, how plants live, and how living things depend on each other.",
-     [("animals", "Animal groups"), ("plants", "How plants live"), ("species", "Living things together")]),
+    ("SCI-105", "Biology II: the living body", "Biology", "How the human body works, and how plants and animals live.",
+     [("blood", "Heart and blood"), ("plants", "How plants live"), ("animals", "Animal groups")]),
 ]
 
 

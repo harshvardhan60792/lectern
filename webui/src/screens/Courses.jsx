@@ -11,7 +11,7 @@ import { fmt, sourceText } from '../lib/format'
 
 const FILTERS = [
   { value: '', label: 'All courses' }, { value: 'local', label: 'Created here' }, { value: 'openstax', label: 'Programming' },
-  { value: 'sciq', label: 'Science' }, { value: 'assistments', label: 'Maths practice' }, { value: 'oulad', label: 'Past courses' },
+  { value: 'sciq', label: 'Science' },
 ]
 
 /** A small ring showing completion; the number is written inside, so colour isn't needed to read it. */
@@ -331,7 +331,7 @@ export default function Courses({ params }) {
   const [open, setOpen] = useState(params?.courseId || null)
   const [adding, setAdding] = useState(!!params?.add)
   const q = useDebounced(text)
-  const { data, reload } = useApi('courses_search', { text: q, source, archived }, [q, source, archived])
+  const { data, reload } = useApi('courses_search', { text: q, source, archived, past: false }, [q, source, archived])
 
   return (
     <>

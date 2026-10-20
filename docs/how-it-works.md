@@ -81,7 +81,7 @@ Each layer only talks to the one below it. This is **separation of concerns**: t
 | **OULAD**, Open University (UK), 2013–14 | 22 courses, 28,785 students, 32,593 enrollments, 173,739 assessment scores, 1.8M study days (from 10.6M click rows), 15,385 certificates |
 | **ASSISTments**, maths tutor, 2009–10 | 1 course, 102 skills, 18,209 problems, 275,458 answers |
 | **OpenStax** *Introduction to Python Programming* | 2 courses, 15 chapters, 85 lessons with video links, 390 questions with the official answer key |
-| **SciQ**, Allen Institute for AI | 6 short science courses (15 topics), 4 readings and 40 questions per topic |
+| **SciQ**, Allen Institute for AI | 5 short science courses (12 of the 15 topics), 4 readings and 40 questions per topic |
 
 Dataset students are anonymised (`Student 11391`). Their courses are historical and closed to new students. New students and courses are added in the app. Details and licences are in [database.md](database.md#data-sources).
 
@@ -290,7 +290,7 @@ Use this to find your way around, or to answer "show me where that happens".
 | File | Notes |
 |---|---|
 | `openstax.py` | Reads the PDF outline for chapters and sections, extracts text in layout mode so code keeps its indentation, pulls out "Concepts in practice" questions and matches the answer key at the back of the book. |
-| `sciq.py` | Loads 13,679 questions; TF-IDF → LSA → k-means makes 15 topics, grouped into 6 short courses. |
+| `sciq.py` | Loads 13,679 questions; TF-IDF → LSA → k-means makes 15 topics, grouped into 5 short courses. |
 | `assistments.py` | One row per answer (`order_id`), original problems only; skills become modules. |
 | `oulad.py` | Courses, assessments, students, enrollments, scores. `_import_clicks()` streams 10.6M rows into a staging database on disk and lets SQLite add them up, so memory stays low. Issues certificates for Pass and Distinction. |
 

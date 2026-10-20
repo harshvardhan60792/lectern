@@ -266,7 +266,7 @@ All six queries, with comments, are in [`learn/l3-queries.sql`](learn/l3-queries
 
 | Query | Result |
 |---|---|
-| 1. Courses by title | 31 rows |
+| 1. Courses by title | 30 rows |
 | 2. Count students | 33,002 (more if you've added some) |
 | 3. Students per source | Open University 28,785 · ASSISTments 4,217 |
 | 4. Withdrew from DDD-2013J | 681 students |

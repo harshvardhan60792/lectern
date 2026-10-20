@@ -55,7 +55,7 @@ Fifteen slides is a good length. Each slide below has: **title**, **what goes on
 | Open University (OULAD) | 32,593 enrollments · 10.6 million clicks | Students, scores, activity, outcomes, the at-risk model |
 | ASSISTments 2009–10 | 275,458 answers | Question health check, mastery |
 | OpenStax *Introduction to Python* textbook | 85 lessons · 390 questions | Two Python courses, with the book's answer key |
-| SciQ (Allen Institute for AI) | 13,679 questions | Six short science courses, topics found by clustering |
+| SciQ (Allen Institute for AI) | 13,679 questions | Five short science courses, topics found by clustering |
 
 - Note: students in the datasets are anonymous, so they appear as IDs like **Student 11391**. Each dataset is used only for what it really contains.
 - Say: all data is real and openly licensed. One command builds the whole 237 MB database from the downloaded files in about 80 seconds.
@@ -153,7 +153,7 @@ Fifteen slides is a good length. Each slide below has: **title**, **what goes on
 - Title: **Tested, measured, and rebuilt from scratch in 80 seconds**
 - Four numbers:
   - **109** automated tests, all passing
-  - **33,003** real students across 31 courses
+  - **33,003** real students across 30 courses
   - **15,385** certificates, each with a fingerprint
   - **0** paid services or internet needed
 - Points:

@@ -21,7 +21,7 @@ def real():
 def test_datasets_loaded(real):
     conn, _ = real
     counts = dict(conn.execute("SELECT source, COUNT(*) FROM courses GROUP BY source").fetchall())
-    assert counts == {"oulad": 22, "assistments": 1, "openstax": 2, "sciq": 6}
+    assert counts == {"oulad": 22, "assistments": 1, "openstax": 2, "sciq": 5}
     assert conn.execute("SELECT COUNT(*) FROM enrollments e JOIN courses c ON c.id = e.course_id "
                         "WHERE c.source = 'oulad'").fetchone()[0] == 32593
 

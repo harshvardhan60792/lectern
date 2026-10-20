@@ -221,11 +221,11 @@ class Api:
     # Courses ---------------------------------------------------------------------------
 
     @staff_only
-    def courses_search(self, text: str = "", source: str | None = None, archived: bool = False):
+    def courses_search(self, text: str = "", source: str | None = None, archived: bool = False, past: bool = True):
         rows = courses.search(self.conn, text, source or None, bool(archived))
         for r in rows:
             r["historical"] = r["source"] in HISTORICAL
-        return rows
+        return rows if past else [r for r in rows if not r["historical"]]
 
     @staff_only
     def course_detail(self, course_id: int):

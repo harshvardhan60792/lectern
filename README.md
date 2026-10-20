@@ -55,7 +55,7 @@ More in [docs/screenshots](docs/screenshots).
 | Open University Learning Analytics Dataset (32,593 enrollments, 10.6M activity rows) | Students, enrollments, scores, activity, outcomes, the at-risk model |
 | ASSISTments 2009–10 (275,458 answers) | Question health check, mastery |
 | OpenStax *Introduction to Python Programming* | Two Python courses: lessons, videos, 390 questions with the official answer key |
-| SciQ (13,679 questions) | Six short science courses, built from topics found by k-means clustering |
+| SciQ (13,679 questions) | Five short science courses, built from topics found by k-means clustering |
 
 Dataset students are anonymised, so they appear as IDs (`Student 11391`). Their courses ran in 2009–2014 and are closed to new enrollments; new students and courses are added in the app.
 

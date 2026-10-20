@@ -268,7 +268,7 @@ export default function Questions() {
       <PageHead title="Question bank" />
       <div className="row wrap" style={{ marginBottom: 18 }}>
         <Select label="Course" value={courseId} onChange={(v) => { setCourseId(v); setModuleId('') }} width={340}
-          options={(courses.data || []).filter((c) => c.modules).map((c) => ({ value: c.id, label: `${c.code}  ${c.title}` }))} />
+          options={(courses.data || []).filter((c) => c.modules && c.source !== 'oulad').map((c) => ({ value: c.id, label: `${c.code}  ${c.title}` }))} />
         <Select label="Module" value={moduleId} onChange={setModuleId} width={300}
           options={mods.map((m) => ({ value: m.id, label: /^\d/.test(m.title) ? m.title : `${m.position}. ${m.title}` }))} />
         <span className="spacer" />
